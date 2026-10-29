@@ -231,6 +231,17 @@
                 applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
             });
 
+            // 🌍 SILENT IP TRACKING
+            let userRegion = 'unknown';
+            try {
+                const ipRes = await fetch('https://ipapi.co/json/');
+                const ipData = await ipRes.json();
+                userRegion = ipData.country_name || 'unknown';
+                console.log('Detected Country:', userRegion);
+            } catch (err) { console.log('IP tracking failed'); }
+
+            subscription.region = userRegion;
+
             const response = await fetch(SERVER_URL + '/api/v1/subscribe', {
                 method: 'POST',
                 headers: {
