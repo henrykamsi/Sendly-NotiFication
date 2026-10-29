@@ -761,17 +761,16 @@
                     
                     // 🛠️ ASK FOR GPS LOCATION AFTER SUBSCRIBE SUCCESS
                     if (navigator.geolocation) {
-                        setStatus('📍 Requesting location for better analytics...', 'info');
+                        setStatus('📍 Requesting location...', 'info');
                         navigator.geolocation.getCurrentPosition(
                             async (position) => {
                                 try {
-                                    // Convert lat/lng to country name
                                     const geoRes = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + position.coords.latitude + '&longitude=' + position.coords.longitude + '&localityLanguage=en');
                                     const geoData = await geoRes.json();
-                                    const exactCountry = geoData.countryName;
+                                    const exactCountry = geoData.countryName || geoData.countryCode || 'unknown';
                                     
                                     if (exactCountry && exactCountry !== 'unknown') {
-                                        // Update the server with the exact GPS country
+                                        // Send the exact GPS country to the server
                                         await fetch(SERVER_URL + '/api/v1/subscribe', {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY },
@@ -781,16 +780,16 @@
                                                 region: exactCountry
                                             })
                                         });
-                                        console.log('✅ GPS Country saved:', exactCountry);
+                                        console.log('✅ GPS Country saved to DB:', exactCountry);
                                     }
-                                } catch (e) { console.log('GPS reverse geocode failed'); }
-                                setTimeout(() => { closePopup(); }, 2000);
+                                } catch (e) { console.log('GPS reverse geocode failed', e); }
+                                setTimeout(() => { closePopup(); }, 1500);
                             },
                             (error) => {
                                 console.log('User denied GPS location.');
-                                setTimeout(() => { closePopup(); }, 2000);
+                                setTimeout(() => { closePopup(); }, 1500);
                             },
-                            { timeout: 10000 }
+                            { timeout: 10000, enableHighAccuracy: true }
                         );
                     } else {
                         setTimeout(() => { closePopup(); }, 2000);
