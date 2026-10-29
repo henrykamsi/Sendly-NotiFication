@@ -1119,7 +1119,39 @@
         hideLoader();
     };
 
-    async function loadScheduledNotifications() {
+    
+    function startScheduledCountdown(notifId, scheduledFor) {
+        var el = document.getElementById('scountdown_' + notifId);
+        if (!el) return;
+        
+        var target = new Date(scheduledFor).getTime();
+        
+        if (countdownIntervals['sched_' + notifId]) clearInterval(countdownIntervals['sched_' + notifId]);
+        
+        countdownIntervals['sched_' + notifId] = setInterval(function() {
+            var now = Date.now();
+            var diff = target - now;
+            
+            if (diff <= 0) {
+                el.textContent = '🔴 Sending now...';
+                el.style.color = '#ff453a';
+                clearInterval(countdownIntervals['sched_' + notifId]);
+                return;
+            }
+            
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            var display = '⏳ ';
+            if (days > 0) display += days + 'd ';
+            display += String(hours).padStart(2, '0') + 'h ' + String(minutes).padStart(2, '0') + 'm ' + String(seconds).padStart(2, '0') + 's';
+            el.textContent = display + ' remaining';
+        }, 1000);
+    }
+
+async function loadScheduledNotifications() {
         if (!currentApiKey) return;
         try {
             var res = await fetch(API_BASE + '/api/v1/notifications/scheduled', { headers: { 'x-sendly-key': currentApiKey } }); var data = await res.json(); var container = document.getElementById('scheduledList'); if (!container) return;
@@ -1211,8 +1243,8 @@
                 var qData = await qRes.json();
                 if (qData.status === 200 && qData.project) {
                     var quota = qData.project.push_quota_remaining;
-                    var quotaEl = document.getElementById('quotaDisplay');
-                    if (quotaEl) quotaEl.textContent = '📊 ' + (quota !== undefined ? quota : 0) + ' remaining';
+                    // Force it to show exactly what the server says
+                    document.getElementById('quotaDisplay').textContent = '📊 ' + quota + ' remaining';
                 }
             } catch (e) { console.log('Quota fetch error', e); }
             // ---------------------------------
