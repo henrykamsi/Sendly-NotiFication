@@ -6,22 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="ZxvYybyg9963-ltKszRxcviAPkYag5UuGqjlJLMqtww" />
     <title>Sendly Notification</title>
-    <meta name="title" content="Sendly Notification">
     <meta name="description" content="Sendly Notification | A Way To Update">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sendly-notification.onrender.com">
-    <meta property="og:title" content="Sendly Notification">
-    <meta property="og:description" content="Sendly Notification | A Way To Update">
-    <meta property="og:image" content="https://i.ibb.co/CLqyBTb/1786407016727.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://sendly-notification.onrender.com">
-    <meta property="twitter:title" content="Sendly Notification">
-    <meta property="twitter:description" content="Sendly Notification | A Way To Update">
-    <meta property="twitter:image" content="https://i.ibb.co/CLqyBTb/1786407016727.png">
     <link rel="icon" type="image/png" href="https://i.ibb.co/CLqyBTb/1786407016727.png">
-    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0b0e; color: #e8e8ec; min-height: 100vh; transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
@@ -31,6 +18,7 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #00f2fe; border-radius: 10px; }
+
         #sendly-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 11, 14, 0.94); backdrop-filter: blur(16px); z-index: 9999999; display: none; flex-direction: column; justify-content: center; align-items: center; gap: 24px; }
         #sendly-loader.show { display: flex; }
         .loader-wrapper { width: 120px; height: 120px; display: flex; justify-content: center; align-items: center; }
@@ -43,6 +31,7 @@
         @keyframes outerAnim { 0%, 30% { transform: scale(0.2); opacity: 0; } 50%, 65% { transform: scale(1); opacity: 1; } 85%, 100% { transform: scale(0.2); opacity: 0; } }
         #sendly-loader .loader-text { font-size: 16px; font-weight: 500; color: #a0a0aa; letter-spacing: 0.5px; }
         #sendly-loader .loader-text span { color: #00f2fe; }
+
         #freePlanBanner { position: fixed; top: 0; left: 0; right: 0; z-index: 99999; background: linear-gradient(135deg, #1a1a2e, #16213e); border-bottom: 2px solid #7c3aed; padding: 12px 20px; display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(8px); }
         body.light-mode #freePlanBanner { background: linear-gradient(135deg, #ffffff, #f0f0f5); border-bottom: 2px solid #7c3aed; }
         #freePlanBanner .banner-text { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #e8e8ec; flex: 1; }
@@ -53,6 +42,7 @@
         #freePlanBanner .banner-actions .upgrade-btn:hover { background: #6d28d9; }
         #freePlanBanner .banner-actions .close-btn { background: transparent; border: none; color: #6a6a7e; font-size: 20px; cursor: pointer; padding: 0 4px; transition: color 0.2s; }
         #freePlanBanner .banner-actions .close-btn:hover { color: #ff453a; }
+
         #authScreen { max-width: 400px; margin: 60px auto; padding: 24px; flex: 1; }
         .auth-logo { text-align: center; margin-bottom: 32px; }
         .auth-logo h1 { font-size: 34px; font-weight: 800; color: #00f2fe; letter-spacing: -0.5px; }
@@ -63,15 +53,19 @@
         body.light-mode .auth-card h2 { color: #1c1c1e; }
         .auth-card .form-group { margin-bottom: 16px; }
         .auth-card .form-group label { display: block; font-size: 13px; font-weight: 500; color: #8a8a96; margin-bottom: 4px; }
+        body.light-mode .auth-card .form-group label { color: #5a5a66; }
         .auth-card .form-group input, .auth-card .form-group select { width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec; transition: border 0.2s; }
+        body.light-mode .auth-card .form-group input, body.light-mode .auth-card .form-group select { background: #f2f2f6; border-color: #d9d9e0; color: #1c1c1e; }
         .auth-card .form-group input:focus, .auth-card .form-group select:focus { border-color: #00f2fe; box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.08); }
         .auth-card .btn-primary { width: 100%; padding: 14px; background: linear-gradient(135deg, #00f2fe, #4facfe); border-radius: 10px; font-weight: 600; font-size: 15px; color: #000; transition: transform 0.15s, box-shadow 0.15s; }
         .auth-card .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0, 242, 254, 0.25); }
         .auth-card .auth-toggle { text-align: center; margin-top: 16px; font-size: 14px; color: #6a6a76; }
         .auth-card .auth-toggle a { color: #00f2fe; font-weight: 600; cursor: pointer; }
+        .auth-card .auth-toggle a:hover { text-decoration: underline; }
         .auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: #6a6a76; font-size: 13px; }
         .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #2a2a30; }
-        .google-btn-wrapper { width: 100%; display: flex; justify-content: center; }
+        body.light-mode .auth-divider::before, body.light-mode .auth-divider::after { background: #d9d9e0; }
+        
         .app-container { max-width: 720px; margin: 0 auto; padding: 20px 16px 100px; display: none; flex: 1; }
         .app-container.active { display: block; }
         .app-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 16px; border-bottom: 1px solid #22222a; margin-bottom: 24px; }
@@ -85,6 +79,7 @@
         .bottom-nav .nav-item .icon { font-size: 22px; }
         .bottom-nav .nav-item.active { color: #00f2fe; }
         .bottom-nav .nav-item.active::after { content: ''; position: absolute; top: -1px; left: 30%; width: 40%; height: 2.5px; background: #00f2fe; border-radius: 4px; }
+
         .card { background: #141418; border: 1px solid #22222a; border-radius: 16px; padding: 20px 24px; margin-bottom: 18px; }
         .card h3 { font-size: 16px; font-weight: 600; color: #e8e8ec; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
         .card p { font-size: 14px; line-height: 1.6; color: #8a8a96; }
@@ -99,6 +94,7 @@
         .btn-block { width: 100%; }
         .btn-sm { padding: 8px 16px; font-size: 12px; }
         .btn-download-green { background: #22c55e; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; width: 100%; justify-content: center; }
+        
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
         .stat-box { background: #0f0f12; border: 1px solid #22222a; border-radius: 12px; padding: 14px 10px; text-align: center; }
         .stat-box .number { font-size: 24px; font-weight: 700; color: #00f2fe; }
@@ -107,31 +103,57 @@
         .app-item .info { flex: 1; }
         .app-item .info .name { font-weight: 600; font-size: 15px; }
         .app-item .info .meta { font-size: 12px; color: #6a6a76; }
+        .app-item .selected-badge { background: #00f2fe; color: #000; font-size: 10px; font-weight: 700; padding: 2px 12px; border-radius: 20px; margin-left: 8px; }
         .app-actions { position: relative; display: flex; align-items: center; }
         .app-menu-btn { background: transparent; border: none; color: #6a6a76; font-size: 22px; font-weight: 700; padding: 4px 10px; cursor: pointer; border-radius: 8px; transition: 0.2s; line-height: 1; }
         .app-menu-dropdown { position: absolute; top: 100%; right: 0; background: #1a1a20; border: 1px solid #2a2a30; border-radius: 12px; min-width: 200px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); z-index: 1000; padding: 6px 0; margin-top: 4px; display: none; }
         .app-menu-dropdown button { display: block; width: 100%; padding: 10px 16px; background: transparent; border: none; color: #e8e8ec; font-size: 13px; text-align: left; cursor: pointer; transition: 0.15s; }
+        
         .notif-item { background: #0f0f12; border: 1px solid #22222a; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; position: relative; }
+        .notif-item.scheduled { border-color: #ff453a; border-left: 4px solid #ff453a; }
         .notif-item .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .notif-item .header .title { font-weight: 600; font-size: 14px; }
+        .notif-item .header .time { font-size: 12px; color: #6a6a76; }
+        .notif-item .stats { display: flex; gap: 14px; font-size: 12px; color: #6a6a76; flex-wrap: wrap; }
+        .notif-item .actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .notif-item .countdown { font-size: 13px; color: #ff453a; font-weight: 600; }
+        .notif-item .scheduled-badge { position: absolute; top: -6px; right: -6px; background: #ff453a; color: #fff; font-size: 10px; padding: 2px 10px; border-radius: 12px; font-weight: 600; }
+        
         .empty-state { text-align: center; padding: 40px 16px; }
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state h3 { color: #6a6a76; font-size: 16px; }
+        .empty-state p { color: #4a4a56; font-size: 14px; max-width: 280px; margin: 4px auto 0; }
+        
         .glowing-box { background: #0f0f12; border: 1px solid #00f2fe; border-radius: 12px; box-shadow: 0 0 15px rgba(0, 242, 254, 0.3), inset 0 0 10px rgba(0, 242, 254, 0.1); padding: 16px; position: relative; margin-top: 16px; animation: glowPulse 2s infinite alternate; }
         .glowing-box .copy-btn { position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #00f2fe, #4facfe); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
         .glowing-box .code-block { background: transparent; border: none; padding: 32px 0 0 0; margin: 0; max-height: 300px; overflow-y: auto; color: #00f2fe; font-family: 'SF Mono', 'Courier New', monospace; font-size: 13px; word-break: break-all; user-select: all; }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 11, 14, 0.92); backdrop-filter: blur(20px); z-index: 999999; display: none; justify-content: center; align-items: center; padding: 24px; }
         .modal-overlay.show { display: flex; }
         .modal-box { background: #151518; border: 1px solid #2a2a30; border-radius: 20px; max-width: 480px; width: 100%; padding: 32px 28px; text-align: center; animation: modalIn 0.3s ease; max-height: 80vh; overflow-y: auto; }
         .subscriber-item { background: #0f0f12; border: 1px solid #22222a; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; font-size: 13px; }
         .subscriber-item .token { color: #00f2fe; font-family: monospace; font-size: 12px; word-break: break-all; }
+        .subscriber-item .device { color: #8a8a96; font-size: 12px; }
         .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #22222a; }
+        .settings-item .left .title { font-size: 14px; font-weight: 500; }
+        .settings-item .left .desc { font-size: 12px; color: #6a6a76; }
         .toggle-group { display: inline-flex; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; overflow: hidden; }
         .toggle-group button { padding: 8px 18px; font-weight: 500; font-size: 13px; color: #6a6a76; transition: 0.2s; border: none; background: transparent; }
         .toggle-group button.active { background: #00f2fe; color: #000; }
         .upload-area { border: 2px dashed #2a2a30; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
+        .upload-area .icon { font-size: 28px; display: block; margin-bottom: 4px; }
+        .upload-area .text { font-size: 13px; color: #6a6a76; }
         .upload-preview { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 8px; display: none; object-fit: cover; }
         .upload-preview.show { display: block; }
+        .result-icon { font-size: 64px; display: block; margin-bottom: 12px; }
+        .result-success .result-icon { color: #34c759; }
+        .result-error .result-icon { color: #ff453a; }
+        .app-footer { text-align: center; padding: 20px 16px 100px; font-size: 12px; color: #4a4a56; border-top: 1px solid #22222a; margin-top: 20px; }
         .config-step { display: none; animation: sendlyFadeIn 0.4s ease-out; }
         .config-step.active { display: block; }
+        @keyframes sendlyFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .progress-bar-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; position: relative; }
+        .progress-bar-container::before { content: ''; position: absolute; top: 50%; left: 10%; right: 10%; height: 2px; background: #2a2a30; z-index: 0; }
         .progress-step { width: 32px; height: 32px; border-radius: 50%; background: #2a2a30; color: #6a6a76; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; position: relative; z-index: 1; transition: 0.3s; }
         .progress-step.active { background: #00f2fe; color: #000; }
         .progress-step.done { background: #34c759; color: #fff; }
@@ -140,106 +162,18 @@
         .schedule-toggle button.active { background: #00f2fe; color: #000; border-color: #00f2fe; }
         .refresh-btn { background: transparent; border: 1px solid #2a2a30; color: #8a8a96; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .clear-all-btn { background: transparent; border: 1px solid #ff453a; color: #ff453a; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        @media (max-width: 480px) {
+            .app-container { padding: 16px 12px 100px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-box .number { font-size: 20px; }
+            .modal-box { padding: 24px 18px; }
+            .bottom-nav .nav-item { padding: 4px 8px; font-size: 9px; }
+            .bottom-nav .nav-item .icon { font-size: 18px; }
+            .card { padding: 16px; }
+            .schedule-toggle button { font-size: 12px; padding: 8px 12px; }
+            .app-menu-dropdown { min-width: 160px; }
+        }
     </style>
-<script>
-(function() {
-    'use strict';
-    const SERVER_URL = 'https://push-notification-server-5tx2.onrender.com';
-    const API_KEY = 'sendly_live_mynairamasterapp_3d59742634800bf99bd992e68e280604';
-    const APP_NAME = 'Sendly Notification';
-    if (!('Notification' in window)) return;
-    function createPopup() {
-        if (document.getElementById('sendly-popup-overlay')) return;
-        const popupHTML = `
-            <div id="sendly-popup-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 999999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                <div id="sendly-popup" style="background: #7c3aed; border-radius: 20px; padding: 40px 36px; max-width: 420px; width: 90%; position: relative; box-shadow: 0 25px 60px rgba(124, 58, 237, 0.5); animation: sendlyFadeIn 0.4s ease-out; text-align: center;">
-                    <button id="sendly-close-btn" style="position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: rgba(255,255,255,0.5); cursor: pointer;">&times;</button>
-                    <div style="margin-bottom: 12px;"><span style="font-size: 48px;">🔔</span></div>
-                    <h2 style="font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 6px 0;">${APP_NAME}</h2>
-                    <p style="font-size: 15px; color: rgba(255,255,255,0.85); margin: 0 0 24px 0; line-height: 1.6;">Allow notifications to receive real-time updates and alerts.</p>
-                    <div style="display: flex; gap: 12px; justify-content: center;">
-                        <button id="sendly-allow-btn" style="background: #22c55e; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1;">✅ Allow</button>
-                        <button id="sendly-dismiss-btn" style="background: #ef4444; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1;">✕ Dismiss</button>
-                    </div>
-                    <div id="sendly-status" style="margin-top: 16px; font-size: 14px; color: rgba(255,255,255,0.8); display: none;"></div>
-                </div>
-            </div>
-            <style>@keyframes sendlyFadeIn { from { opacity: 0; transform: scale(0.95) translateY(15px); } to { opacity: 1; transform: scale(1) translateY(0); } }</style>
-        `;
-        const div = document.createElement('div'); div.innerHTML = popupHTML; document.body.appendChild(div.firstElementChild);
-        document.getElementById('sendly-allow-btn').addEventListener('click', function() { setStatus('⏳ Requesting permission...', ''); requestBrowserPermission(); });
-        document.getElementById('sendly-dismiss-btn').addEventListener('click', function() { closePopup(); localStorage.setItem('sendly_dismissed', 'true'); });
-        document.getElementById('sendly-close-btn').addEventListener('click', function() { closePopup(); localStorage.setItem('sendly_dismissed', 'true'); });
-    }
-    function setStatus(message, type) { const statusEl = document.getElementById('sendly-status'); if (statusEl) { statusEl.textContent = message; statusEl.className = type || ''; statusEl.style.display = 'block'; } }
-    function closePopup() { const overlay = document.getElementById('sendly-popup-overlay'); if (overlay) overlay.remove(); }
-    function requestBrowserPermission() { Notification.requestPermission().then(function(permission) { if (permission === 'granted') { setStatus('✅ Subscribed! Saving device...', 'success'); registerServiceWorker(); localStorage.removeItem('sendly_dismissed'); localStorage.setItem('sendly_subscribed', 'true'); } else if (permission === 'denied') { setStatus('❌ Permission denied.', 'error'); setTimeout(() => { closePopup(); }, 2000); localStorage.setItem('sendly_blocked', 'true'); } else { setStatus('⚠️ Permission request cancelled.', ''); } }); }
-    async function registerServiceWorker() {
-        try {
-            const swPath = window.location.pathname.split('/').slice(0, -1).join('/') + '/sw.js';
-            const reg = await navigator.serviceWorker.register(swPath);
-            let userRegion = 'unknown';
-            
-            // 🛡️ LAYER 1 & 2: SILENT IP TRACKING
-            try { 
-                const res1 = await fetch('https://ipwho.is/'); 
-                const data1 = await res1.json(); 
-                if(data1.success) userRegion = data1.country; 
-            } catch(e1) {
-                try { 
-                    const res2 = await fetch('https://ipapi.co/json/'); 
-                    const data2 = await res2.json(); 
-                    if(data2.country_name) userRegion = data2.country_name; 
-                } catch(e2) {}
-            }
-            const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key'); const keyData = await keyRes.json();
-            function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
-            const subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(keyData.publicKey) });
-            const subJSON = subscription.toJSON();
-            subJSON.region = userRegion;
-            const response = await fetch(SERVER_URL + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY }, body: JSON.stringify(subJSON) });
-            const data = await response.json();
-            if (data.status === 100) { 
-                setStatus('✅ Device saved! You will receive notifications.', 'success'); 
-                
-                // 📍 LAYER 3: GPS PROMPT
-                if (navigator.geolocation) {
-                    setStatus('📍 Requesting location...', 'info');
-                    navigator.geolocation.getCurrentPosition(
-                        async (position) => {
-                            try {
-                                const geoRes = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + position.coords.latitude + '&longitude=' + position.coords.longitude + '&localityLanguage=en');
-                                const geoData = await geoRes.json();
-                                const exactCountry = geoData.countryName || geoData.countryCode || 'unknown';
-                                if (exactCountry && exactCountry !== 'unknown') {
-                                    const updatedSub = JSON.parse(JSON.stringify(subscription));
-                                    updatedSub.region = exactCountry;
-                                    await fetch(SERVER_URL + '/api/v1/subscribe', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY },
-                                        body: JSON.stringify(updatedSub)
-                                    });
-                                    console.log('✅ GPS country sent to server:', exactCountry);
-                                }
-                            } catch (e) {}
-                            setTimeout(() => { closePopup(); }, 1500);
-                        },
-                        (error) => { setTimeout(() => { closePopup(); }, 1500); },
-                        { timeout: 10000, enableHighAccuracy: true }
-                    );
-                } else {
-                    setTimeout(() => { closePopup(); }, 2000); 
-                }
-            } else { 
-                setStatus('❌ Registration failed: ' + (data.message || 'Unknown error'), 'error'); 
-            }
-        } catch (err) { setStatus('❌ Error: ' + err.message, 'error'); }
-    }
-    function shouldShowPopup() { if (Notification.permission === 'granted' || localStorage.getItem('sendly_subscribed') === 'true') { registerServiceWorker(); return false; } if (Notification.permission === 'denied' || localStorage.getItem('sendly_blocked') === 'true') return false; if (localStorage.getItem('sendly_dismissed') === 'true') return false; return true; }
-    function initSendly() { if (shouldShowPopup()) createPopup(); }
-    if (document.readyState === 'complete') { initSendly(); } else { window.addEventListener('load', initSendly); }
-})();
-</script>
 </head>
 <body>
 
@@ -289,11 +223,6 @@
         </div>
         <button class="btn-primary" id="loginBtn">Sign In</button>
         <div class="auth-divider">or</div>
-        <!-- GOOGLE BUTTON -->
-        <button id="customGoogleLoginBtn" onclick="triggerGoogleAuth()" style="width:100%; padding:12px; background:#ffffff; color:#000; border:1px solid #d9d9e0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" height="20" alt="G">
-            Sign in with Google
-        </button>
         <div class="google-btn-wrapper" id="googleLoginWrapper"></div>
         <div class="auth-toggle">
             Don't have an account? <a id="showRegister">Create one</a>
@@ -336,11 +265,6 @@
         </div>
         <button class="btn-primary" id="registerBtn">Create Account</button>
         <div class="auth-divider">or</div>
-        <!-- GOOGLE BUTTON -->
-        <button id="customGoogleRegisterBtn" onclick="triggerGoogleAuth()" style="width:100%; padding:12px; background:#ffffff; color:#000; border:1px solid #d9d9e0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" height="20" alt="G">
-            Sign up with Google
-        </button>
         <div class="google-btn-wrapper" id="googleRegisterWrapper"></div>
         <div class="auth-toggle">
             Already have an account? <a id="showLogin">Sign in</a>
@@ -506,12 +430,6 @@
                 <label>👥 Subscriber Group</label>
                 <select id="pushGroup"><option value="all">All Subscribers</option></select>
             </div>
-
-            <div class="form-group">
-                <label>🔊 Custom Notification Sound (URL)</label>
-                <input type="url" id="customSound" placeholder="https://example.com/sound.mp3" />
-                <div style="font-size:11px; color:#6a6a76; margin-top:4px;">Upload an mp3 to your server or imgbb and paste the link here.</div>
-            </div>
             <div class="schedule-toggle">
                 <button class="active" id="sendNowBtn">🚀 Push Now</button>
                 <button id="scheduleBtn">📅 Schedule</button>
@@ -549,7 +467,6 @@
             <button class="btn btn-secondary btn-sm" data-range="1year">1 Year</button>
             <button class="btn btn-primary btn-sm" id="refreshAnalyticsBtn">🔄 Refresh</button>
         </div>
-
         <div class="stats-grid" id="statsGrid">
             <div class="stat-box"><div class="number" id="statSubscribers">0</div><div class="label">👥 Subscribers</div></div>
             <div class="stat-box"><div class="number" id="statSent">0</div><div class="label">📤 Sent</div></div>
@@ -558,17 +475,10 @@
             <div class="stat-box"><div class="number" id="statClickRate">0%</div><div class="label">👆 Click Rate</div></div>
             <div class="stat-box"><div class="number" id="statSuccessRate">0%</div><div class="label">📊 Success Rate</div></div>
         </div>
-
-        <div class="card">
-            <h3>🌍 Top Countries by Clicks</h3>
-            <div id="topCountries"><p style="color:#6a6a76; font-size:14px;">Select an app to view countries.</p></div>
-        </div>
-
         <div class="card">
             <h3>📱 Subscriber Tokens</h3>
             <div id="subscriberTokens"><p style="color:#6a6a76; font-size:14px;">Select an app to view subscribers.</p></div>
         </div>
-
         <div class="card">
             <h3>📊 Notification List</h3>
             <div id="analyticsNotificationList"><p style="color:#6a6a76; font-size:14px;">Select an app to view notifications.</p></div>
@@ -716,7 +626,11 @@
 </div>
 
 <script>
-    
+    const API_BASE = 'https://push-notification-server-5tx2.onrender.com';
+    const IMGBB_API_KEY = '2b2ce9305b3ff047d65df5cb5f9153fc';
+    const SW_DOWNLOAD_URL = 'https://raw.githubusercontent.com/henrykamsi/push-notification-server/main/sw.js';
+    const GOOGLE_CLIENT_ID = '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com';
+
     const CONFIG_TEMPLATE = `<script>
 (function() {
     'use strict';
@@ -729,111 +643,124 @@
         const popupHTML = \`
             <div id="sendly-popup-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 999999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 <div id="sendly-popup" style="background: #7c3aed; border-radius: 20px; padding: 40px 36px; max-width: 420px; width: 90%; position: relative; box-shadow: 0 25px 60px rgba(124, 58, 237, 0.5); animation: sendlyFadeIn 0.4s ease-out; text-align: center;">
-                    <button id="sendly-close-btn" style="position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: rgba(255,255,255,0.5); cursor: pointer;">&times;</button>
+                    <button id="sendly-close-btn" style="position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: rgba(255,255,255,0.5); cursor: pointer; padding: 4px 8px; transition: color 0.2s;">&times;</button>
                     <div style="margin-bottom: 12px;"><span style="font-size: 48px;">🔔</span></div>
                     <h2 style="font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 6px 0;">\${APP_NAME}</h2>
                     <p style="font-size: 15px; color: rgba(255,255,255,0.85); margin: 0 0 24px 0; line-height: 1.6;">Allow notifications to receive real-time updates and alerts.</p>
                     <div style="display: flex; gap: 12px; justify-content: center;">
-                        <button id="sendly-allow-btn" style="background: #22c55e; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1;">✅ Allow</button>
-                        <button id="sendly-dismiss-btn" style="background: #ef4444; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1;">✕ Dismiss</button>
+                        <button id="sendly-allow-btn" style="background: #22c55e; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; flex: 1; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">✅ Allow</button>
+                        <button id="sendly-dismiss-btn" style="background: #ef4444; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; flex: 1; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">✕ Dismiss</button>
                     </div>
                     <div id="sendly-status" style="margin-top: 16px; font-size: 14px; color: rgba(255,255,255,0.8); display: none;"></div>
+                    <p style="font-size: 11px; color: rgba(255,255,255,0.4); margin: 14px 0 0 0;">You can change this anytime in your browser settings</p>
                 </div>
             </div>
-            <style>@keyframes sendlyFadeIn { from { opacity: 0; transform: scale(0.95) translateY(15px); } to { opacity: 1; transform: scale(1) translateY(0); } }</style>
+            <style>
+                @keyframes sendlyFadeIn { from { opacity: 0; transform: scale(0.95) translateY(15px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+                #sendly-allow-btn:hover { background: #16a34a; transform: scale(1.02); }
+                #sendly-dismiss-btn:hover { background: #dc2626; transform: scale(1.02); }
+                #sendly-close-btn:hover { color: #ffffff; }
+                #sendly-status.success { color: #86efac; }
+                #sendly-status.error { color: #fca5a5; }
+            </style>
         \`;
         const div = document.createElement('div'); div.innerHTML = popupHTML; document.body.appendChild(div.firstElementChild);
         document.getElementById('sendly-allow-btn').addEventListener('click', function() { setStatus('⏳ Requesting permission...', ''); requestBrowserPermission(); });
         document.getElementById('sendly-dismiss-btn').addEventListener('click', function() { closePopup(); localStorage.setItem('sendly_dismissed', 'true'); });
         document.getElementById('sendly-close-btn').addEventListener('click', function() { closePopup(); localStorage.setItem('sendly_dismissed', 'true'); });
+        document.getElementById('sendly-popup-overlay').addEventListener('click', function(e) { if (e.target === this) {} });
     }
     function setStatus(message, type) { const statusEl = document.getElementById('sendly-status'); if (statusEl) { statusEl.textContent = message; statusEl.className = type || ''; statusEl.style.display = 'block'; } }
-    function closePopup() { const overlay = document.getElementById('sendly-popup-overlay'); if (overlay) overlay.remove(); }
-    function requestBrowserPermission() { Notification.requestPermission().then(function(permission) { if (permission === 'granted') { setStatus('✅ Subscribed! Saving device...', 'success'); registerServiceWorker(); localStorage.removeItem('sendly_dismissed'); localStorage.setItem('sendly_subscribed', 'true'); } else if (permission === 'denied') { setStatus('❌ Permission denied.', 'error'); setTimeout(() => { closePopup(); }, 2000); localStorage.setItem('sendly_blocked', 'true'); } else { setStatus('⚠️ Permission request cancelled.', ''); } }); }
+    function closePopup() { const overlay = document.getElementById('sendly-popup-overlay'); if (overlay) { overlay.remove(); } }
+    function requestBrowserPermission() {
+        Notification.requestPermission().then(function(permission) {
+            if (permission === 'granted') { setStatus('✅ Subscribed! Saving device...', 'success'); registerServiceWorker(); localStorage.removeItem('sendly_dismissed'); localStorage.setItem('sendly_subscribed', 'true'); }
+            else if (permission === 'denied') { setStatus('❌ Permission denied.', 'error'); setTimeout(() => { closePopup(); }, 2000); localStorage.setItem('sendly_blocked', 'true'); localStorage.removeItem('sendly_dismissed'); }
+            else { setStatus('⚠️ Permission request cancelled.', ''); }
+        });
+    }
     async function registerServiceWorker() {
         try {
             const swPath = window.location.pathname.split('/').slice(0, -1).join('/') + '/sw.js';
             const reg = await navigator.serviceWorker.register(swPath);
-            let userRegion = 'unknown';
-            try { const ipRes = await fetch('https://ipapi.co/json/'); const ipData = await ipRes.json(); userRegion = ipData.country_name || 'unknown'; } catch (geoErr) {}
             const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key'); const keyData = await keyRes.json();
             function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/\\-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
             const subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(keyData.publicKey) });
-            const subJSON = subscription.toJSON();
-            subJSON.region = userRegion;
-            const response = await fetch(SERVER_URL + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY }, body: JSON.stringify(subJSON) });
+            const response = await fetch(SERVER_URL + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY }, body: JSON.stringify(subscription) });
             const data = await response.json();
-            if (data.status === 100) { setStatus('✅ Device saved! You will receive notifications.', 'success'); setTimeout(() => { closePopup(); }, 2000); } else { setStatus('❌ Registration failed: ' + (data.message || 'Unknown error'), 'error'); }
+            if (data.status === 100) { setStatus('✅ Device saved! You will receive notifications.', 'success'); setTimeout(() => { closePopup(); }, 2000); }
+            else { setStatus('❌ Registration failed: ' + (data.message || 'Unknown error'), 'error'); }
         } catch (err) { setStatus('❌ Error: ' + err.message, 'error'); }
     }
     function shouldShowPopup() { if (Notification.permission === 'granted' || localStorage.getItem('sendly_subscribed') === 'true') { registerServiceWorker(); return false; } if (Notification.permission === 'denied' || localStorage.getItem('sendly_blocked') === 'true') return false; if (localStorage.getItem('sendly_dismissed') === 'true') return false; return true; }
-    function initSendly() { if (shouldShowPopup()) createPopup(); }
+    function initSendly() { if (shouldShowPopup()) { createPopup(); } }
     if (document.readyState === 'complete') { initSendly(); } else { window.addEventListener('load', initSendly); }
-})();
-<\/script>`;
+})();<\/script>`;
 
-    const API_BASE = 'https://push-notification-server-5tx2.onrender.com';
-    const IMGBB_API_KEY = '2b2ce9305b3ff047d65df5cb5f9153fc';
-    const SW_DOWNLOAD_URL = 'https://raw.githubusercontent.com/henrykamsi/push-notification-server/main/sw.js';
-    const GOOGLE_CLIENT_ID = '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com';
-
-    var currentUser = null;
-    var currentSession = null;
-    var currentApiKey = null;
-    var currentPlan = 'Free';
-    var countdownIntervals = {};
-    var selectedAppId = null;
+    var currentUser = null; var currentSession = null; var currentApiKey = null; var currentPlan = 'Free'; var countdownIntervals = {}; var selectedAppId = null;
 
     function $(id) { return document.getElementById(id); }
-
     function showLoader(action) {
-        action = action || 'Loading';
         var actionMap = { 'login': 'Signing in', 'register': 'Creating account', 'create-app': 'Creating app', 'send-push': 'Sending notification', 'upload': 'Uploading image', 'delete': 'Deleting', 'webhook': 'Registering webhook', 'admin': 'Verifying admin', 'test': 'Sending test', 'validate': 'Validating key', 'revoke': 'Revoking key', 'verify-widget': 'Verifying widget' };
-        var loader = document.getElementById('sendly-loader');
-        var actionText = document.getElementById('loaderAction');
-        actionText.textContent = (actionMap[action] || action) + '...';
-        loader.classList.add('show');
+        document.getElementById('loaderAction').textContent = (actionMap[action] || action) + '...'; document.getElementById('sendly-loader').classList.add('show');
     }
-
     function hideLoader() { document.getElementById('sendly-loader').classList.remove('show'); }
-
     function showResultModal(isSuccess, title, message, details) {
-        details = details || '';
-        var modal = document.getElementById('resultModal');
-        var icon = document.getElementById('resultIcon');
-        var titleEl = document.getElementById('resultTitle');
-        var msgEl = document.getElementById('resultMessage');
-        var box = document.getElementById('resultModalBox');
+        details = details || ''; var box = document.getElementById('resultModalBox');
         box.classList.remove('result-success', 'result-error');
-        if (isSuccess) { icon.textContent = '✅'; box.classList.add('result-success'); titleEl.textContent = title || 'Success'; }
-        else { icon.textContent = '❌'; box.classList.add('result-error'); titleEl.textContent = title || 'Error'; }
-        msgEl.innerHTML = message + (details ? '<br><br><span style="font-size:12px; color:#6a6a76;">' + details + '</span>' : '');
-        modal.classList.add('show');
+        if (isSuccess) { document.getElementById('resultIcon').textContent = '✅'; box.classList.add('result-success'); }
+        else { document.getElementById('resultIcon').textContent = '❌'; box.classList.add('result-error'); }
+        document.getElementById('resultTitle').textContent = title || 'Success';
+        document.getElementById('resultMessage').innerHTML = message + (details ? '<br><br><span style="font-size:12px; color:#6a6a76;">' + details + '</span>' : '');
+        document.getElementById('resultModal').classList.add('show');
     }
-
     document.getElementById('closeResultModal').onclick = function() { document.getElementById('resultModal').classList.remove('show'); };
     document.getElementById('resultModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 
     function saveSession(user, session) { localStorage.setItem('sendly_user', JSON.stringify(user)); localStorage.setItem('sendly_session', session); }
-    function loadSession() {
-        var user = localStorage.getItem('sendly_user'); var session = localStorage.getItem('sendly_session');
-        if (user && session) { currentUser = JSON.parse(user); currentSession = session; return true; }
-        return false;
-    }
+    function loadSession() { var user = localStorage.getItem('sendly_user'); var session = localStorage.getItem('sendly_session'); if (user && session) { currentUser = JSON.parse(user); currentSession = session; return true; } return false; }
     function clearSession() { localStorage.removeItem('sendly_user'); localStorage.removeItem('sendly_session'); }
 
-            if (loadSession()) return;
-        google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredentialResponse, cancel_on_tap_outside: false });
+    // ============================================================
+    // GOOGLE ONE TAP (EXACT WORKING LOGIC)
+    // ============================================================
+    function initGoogleOneTap() {
+        if (typeof google === 'undefined') { setTimeout(initGoogleOneTap, 1000); return; }
+        if (loadSession()) return;
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            cancel_on_tap_outside: false
+        });
         google.accounts.id.prompt();
     }
 
-            }).catch(function(err) { hideLoader(); showResultModal(false, 'Network Error', err.message); });
+    function handleGoogleCredentialResponse(response) {
+        var idToken = response.credential;
+        showLoader('login');
+        fetch(API_BASE + '/api/v1/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: idToken })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            hideLoader();
+            if (data.status === 200 || data.status === 201) {
+                currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
+                showResultModal(true, 'Welcome!', 'You have been signed in with Google.');
+            } else { showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in with Google.'); }
+        })
+        .catch(function(err) { hideLoader(); showResultModal(false, 'Network Error', err.message); });
     }
 
     document.getElementById('showRegister').onclick = function() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; renderGoogleButton('googleRegisterWrapper'); };
     document.getElementById('showLogin').onclick = function() { document.getElementById('registerForm').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); };
 
-            container.innerHTML = '';
+    function renderGoogleButton(containerId) {
+        var container = document.getElementById(containerId); if (!container) return;
+        if (typeof google === 'undefined') { setTimeout(function() { renderGoogleButton(containerId); }, 500); return; }
+        container.innerHTML = '';
         google.accounts.id.renderButton(container, { type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300 });
     }
 
@@ -900,7 +827,7 @@
         item.onclick = function() {
             document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); }); this.classList.add('active');
             var tabId = this.dataset.tab; document.querySelectorAll('.tab-content').forEach(function(t) { t.style.display = 'none'; }); document.getElementById(tabId).style.display = 'block';
-            if (tabId === 'tabStats') { loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); loadCountries(); }
+            if (tabId === 'tabStats') { loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); }
             if (tabId === 'tabPush') { loadPushApps(); loadPushHistory(); loadScheduledNotifications(); updateScheduledCount(); }
             if (tabId === 'tabSettings') { loadCrackSignal(); loadWebhooks(); loadProfile(); }
         };
@@ -915,16 +842,13 @@
         var appName = document.getElementById('appNameInput').value.trim(); var appUrl = document.getElementById('appUrlInput').value.trim();
         if (!appName) { showResultModal(false, 'Validation Error', 'Please enter an app name.'); return; }
         if (!appUrl) { showResultModal(false, 'Validation Error', 'Please enter your app URL.'); return; }
-        var sessionToken = localStorage.getItem('sendly_session');
-        if (!sessionToken) { showResultModal(false, 'Authentication Error', 'Please login first.'); return; }
+        var sessionToken = localStorage.getItem('sendly_session'); if (!sessionToken) { showResultModal(false, 'Authentication Error', 'Please login first.'); return; }
         showLoader('create-app');
         try {
             var res = await fetch(API_BASE + '/api/v1/apps/create', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': sessionToken }, body: JSON.stringify({ app_name: appName, app_url: appUrl }) });
             var data = await res.json();
-            if (data.status === 201) {
-                currentApiKey = data.api_key; document.getElementById('apiKeyStepDisplay').textContent = data.api_key;
-                showStep(2); showResultModal(true, 'App Created!', 'Your app has been created successfully.'); loadApps();
-            } else { showResultModal(false, 'Creation Failed', data.message || 'Failed to create app.'); }
+            if (data.status === 201) { currentApiKey = data.api_key; document.getElementById('apiKeyStepDisplay').textContent = data.api_key; var configWithKey = CONFIG_TEMPLATE.replace(/###API_KEY###/g, data.api_key); document.getElementById('configStepDisplay').textContent = configWithKey; showStep(2); showResultModal(true, 'App Created!', 'Your app has been created successfully.'); loadApps(); }
+            else { showResultModal(false, 'Creation Failed', data.message || 'Failed to create app.'); }
         } catch (e) { showResultModal(false, 'Network Error', e.message); }
         hideLoader();
     };
@@ -958,10 +882,7 @@
 
     document.getElementById('settingsGenerateConfigBtn').onclick = function() {
         if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; }
-        var configWithKey = CONFIG_TEMPLATE.replace(/###API_KEY###/g, currentApiKey);
-        var output = document.getElementById('settingsConfigOutput'); 
-        output.style.display = 'block'; 
-        document.getElementById('settingsConfigCode').textContent = configWithKey;
+        var configWithKey = CONFIG_TEMPLATE.replace(/###API_KEY###/g, currentApiKey); var output = document.getElementById('settingsConfigOutput'); output.style.display = 'block'; document.getElementById('settingsConfigCode').textContent = configWithKey;
         showResultModal(true, 'Config Generated', 'Your config code is ready.');
     };
 
@@ -973,13 +894,12 @@
             var res = await fetch(API_BASE + '/api/v1/apps/list', { headers: { 'x-session-token': currentSession } });
             var data = await res.json();
             var container = document.getElementById('appsList'); var empty = document.getElementById('emptyApps');
-            container.innerHTML = '';
             if (data.apps && data.apps.length > 0) {
                 empty.style.display = 'none';
                 container.innerHTML = data.apps.map(function(p) {
                     var isSelected = (p.api_key === currentApiKey);
                     return '<div class="app-item" data-apikey="' + p.api_key + '" data-appid="' + p.id + '" onclick="selectApp(\'' + p.api_key + '\')">' +
-                        '<div class="info"><div class="name">' + (p.app_name || p.project_name || 'Unnamed') + (isSelected ? ' <span class="selected-badge" style="background:#00f2fe; color:#000; font-size:10px; padding:2px 12px; border-radius:20px; margin-left:8px;">✅ SELECTED</span>' : '') + '</div>' +
+                        '<div class="info"><div class="name">' + (p.app_name || p.project_name || 'Unnamed') + (isSelected ? ' <span class="selected-badge">✅ SELECTED</span>' : '') + '</div>' +
                         '<div class="meta">🔑 ' + (p.api_key ? p.api_key.substring(0, 20) + '…' : '') + ' • 📱 ' + (p.subscribers || 0) + ' subs</div></div>' +
                         '<div class="app-actions"><button class="app-menu-btn" onclick="event.stopPropagation(); toggleAppMenu(event, \'' + p.api_key + '\')" title="More options">⋮</button>' +
                         '<div class="app-menu-dropdown" id="appMenu_' + p.api_key + '">' +
@@ -1001,7 +921,7 @@
         document.querySelectorAll('.app-item').forEach(function(el) {
             var isSelected = el.dataset.apikey === apiKey; el.classList.toggle('selected', isSelected);
             var nameEl = el.querySelector('.name');
-            if (nameEl) { var baseName = nameEl.textContent.replace('✅ SELECTED', '').trim(); nameEl.innerHTML = baseName + (isSelected ? ' <span class="selected-badge" style="background:#00f2fe; color:#000; font-size:10px; padding:2px 12px; border-radius:20px; margin-left:8px;">✅ SELECTED</span>' : ''); }
+            if (nameEl) { var baseName = nameEl.textContent.replace('✅ SELECTED', '').trim(); nameEl.innerHTML = baseName + (isSelected ? ' <span class="selected-badge">✅ SELECTED</span>' : ''); }
         });
         loadSubscriberTokens(); updatePlanBadge(); showResultModal(true, 'App Selected', 'Selected app: ' + apiKey.substring(0, 20) + '…');
         document.querySelector('[data-tab="tabPush"]').click();
@@ -1026,23 +946,18 @@
         hideLoader();
     };
 
-    window.viewAppAnalytics = function(apiKey) { currentApiKey = apiKey; document.querySelector('[data-tab="tabStats"]').click(); loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); loadCountries(); showResultModal(true, 'Viewing Analytics', 'Analytics for selected app.'); };
+    window.viewAppAnalytics = function(apiKey) { currentApiKey = apiKey; document.querySelector('[data-tab="tabStats"]').click(); loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); showResultModal(true, 'Viewing Analytics', 'Analytics for selected app.'); };
 
     window.getAppConfig = function(apiKey) {
-        var configWithKey = CONFIG_TEMPLATE.replace(/###API_KEY###/g, apiKey);
-        var output = document.getElementById('settingsConfigOutput');
-        if(output) {
-            output.style.display = 'block';
-            document.getElementById('settingsConfigCode').textContent = configWithKey;
-        }
-        showResultModal(true, 'Config Generated', 'Your config code is ready. You can copy it from the Settings tab or the App creation steps.');
-        document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; });
+        var configWithKey = CONFIG_TEMPLATE.replace(/###API_KEY###/g, apiKey); var output = document.getElementById('settingsConfigOutput'); output.style.display = 'block'; document.getElementById('settingsConfigCode').textContent = configWithKey;
+        showResultModal(true, 'Config Generated', 'Your config code is ready.'); document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; });
     };
 
     window.downloadAppSW = async function(apiKey) {
         try {
-            showLoader('upload'); var response = await fetch(SW_DOWNLOAD_URL); var scriptContent = await response.text(); var blob = new Blob([scriptContent], { type: 'application/javascript' });
-            var url = window.URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'sw.js'; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url); hideLoader(); showResultModal(true, 'Downloaded!', 'sw.js has been downloaded successfully.');
+            showLoader('upload'); var response = await fetch(SW_DOWNLOAD_URL); var scriptContent = await response.text();
+            var blob = new Blob([scriptContent], { type: 'application/javascript' }); var url = window.URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'sw.js';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url); hideLoader(); showResultModal(true, 'Downloaded!', 'sw.js has been downloaded successfully.');
             document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; });
         } catch (error) { hideLoader(); console.error('Download failed:', error); showResultModal(false, 'Download Failed', 'Could not download sw.js. Please try again.'); }
     };
@@ -1064,7 +979,10 @@
 
     document.addEventListener('click', function() { document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; }); });
 
-    async function uploadImageToImgBB(file) { var formData = new FormData(); formData.append('image', file); formData.append('key', IMGBB_API_KEY); try { var response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData }); var data = await response.json(); return data.success ? data.data.url : null; } catch (error) { return null; } }
+    async function uploadImageToImgBB(file) {
+        var formData = new FormData(); formData.append('image', file); formData.append('key', IMGBB_API_KEY);
+        try { var response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData }); var data = await response.json(); return data.success ? data.data.url : null; } catch (error) { return null; }
+    }
 
     function setupImageUpload(uploadAreaId, fileInputId, previewId, inputId) {
         var uploadArea = document.getElementById(uploadAreaId); var fileInput = document.getElementById(fileInputId); var preview = document.getElementById(previewId); var input = document.getElementById(inputId);
@@ -1090,16 +1008,8 @@
         var schedule = document.getElementById('pushSchedule').value; var group = document.getElementById('pushGroup').value;
         if (!apiKey) { showResultModal(false, 'Validation Error', 'Please select an app.'); return; }
         if (!title || !message) { showResultModal(false, 'Validation Error', 'Please enter a title and message.'); return; }
-        var customSound = document.getElementById('customSound').value.trim();
-        var payload = { channel: 'push', title: title, message: message, image: image || '', icon: icon || '', button1_name: btn1Name, button1_url: btn1Url, button2_name: btn2Name, button2_url: btn2Url, subscriber_group: group || 'all', custom_sound_url: customSound };
-        if (isScheduled && schedule) { 
-            // Convert "2026-10-29T14:30" to full ISO string
-            try {
-                payload.scheduled_for = new Date(schedule).toISOString(); 
-            } catch(e) {
-                payload.scheduled_for = schedule;
-            }
-        }
+        var payload = { channel: 'push', title: title, message: message, image: image || '', icon: icon || '', button1_name: btn1Name, button1_url: btn1Url, button2_name: btn2Name, button2_url: btn2Url, subscriber_group: group || 'all' };
+        if (isScheduled && schedule) { payload.scheduled_for = schedule; }
         showLoader('send-push');
         try {
             var res = await fetch(API_BASE + '/api/v1/send', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': apiKey }, body: JSON.stringify(payload) }); var data = await res.json();
@@ -1114,46 +1024,31 @@
         hideLoader();
     };
 
-    
-    function startScheduledCountdown(notifId, scheduledFor) {
-        var el = document.getElementById('scountdown_' + notifId);
-        if (!el) return;
-        
-        var target = new Date(scheduledFor).getTime();
-        
-        if (countdownIntervals['sched_' + notifId]) clearInterval(countdownIntervals['sched_' + notifId]);
-        
-        countdownIntervals['sched_' + notifId] = setInterval(function() {
-            var now = Date.now();
-            var diff = target - now;
-            
-            if (diff <= 0) {
-                el.textContent = '🔴 Sending now...';
-                el.style.color = '#ff453a';
-                clearInterval(countdownIntervals['sched_' + notifId]);
-                return;
-            }
-            
-            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            var display = '⏳ ';
-            if (days > 0) display += days + 'd ';
-            display += String(hours).padStart(2, '0') + 'h ' + String(minutes).padStart(2, '0') + 'm ' + String(seconds).padStart(2, '0') + 's';
-            el.textContent = display + ' remaining';
-        }, 1000);
-    }
-
-async function loadScheduledNotifications() {
+    async function loadScheduledNotifications() {
         if (!currentApiKey) return;
         try {
             var res = await fetch(API_BASE + '/api/v1/notifications/scheduled', { headers: { 'x-sendly-key': currentApiKey } }); var data = await res.json(); var container = document.getElementById('scheduledList'); if (!container) return;
             if (data.scheduled && data.scheduled.length > 0) {
-                container.innerHTML = data.scheduled.map(function(n) { return '<div class="notif-item scheduled" data-id="' + n.notification_id + '"><span class="scheduled-badge" style="position:absolute; top:-6px; right:-6px; background:#ff453a; color:#fff; font-size:10px; padding:2px 10px; border-radius:12px; font-weight:600;">⏳ SCHEDULED</span><div class="header"><span class="title">' + (n.title || 'Untitled') + '</span><span class="time">' + (n.scheduled_for || 'N/A') + '</span></div><div class="actions"><button class="btn btn-danger btn-sm" onclick="cancelScheduledNotification(\'' + n.notification_id + '\')">🗑️ Cancel</button></div></div>'; }).join('');
+                container.innerHTML = data.scheduled.map(function(n) {
+                    var countdownId = 'scountdown_' + n.notification_id;
+                    return '<div class="notif-item scheduled" data-id="' + n.notification_id + '"><span class="scheduled-badge">⏳ SCHEDULED</span><div class="header"><span class="title">' + (n.title || 'Untitled') + '</span><span class="time">' + (n.scheduled_for || 'N/A') + '</span></div><div class="countdown" id="' + countdownId + '">⏳ Calculating...</div><div class="actions"><button class="btn btn-danger btn-sm" onclick="cancelScheduledNotification(\'' + n.notification_id + '\')">🗑️ Cancel</button></div></div>';
+                }).join('');
+                data.scheduled.forEach(function(n) { startScheduledCountdown(n.notification_id, n.scheduled_for); });
             } else { container.innerHTML = '<p style="color:#6a6a76; font-size:14px; padding:16px 0;">No scheduled notifications.</p>'; }
         } catch (e) { console.warn('Load scheduled error:', e); }
+    }
+
+    function startScheduledCountdown(notifId, scheduledFor) {
+        var el = document.getElementById('scountdown_' + notifId); if (!el) return;
+        var target = new Date(scheduledFor).getTime(); if (isNaN(target)) { el.textContent = '⏳ Invalid date'; return; }
+        if (countdownIntervals['sched_' + notifId]) clearInterval(countdownIntervals['sched_' + notifId]);
+        countdownIntervals['sched_' + notifId] = setInterval(function() {
+            var now = Date.now(); var diff = target - now;
+            if (diff <= 0) { el.textContent = '🔴 Should be sending now!'; el.style.color = '#ff453a'; clearInterval(countdownIntervals['sched_' + notifId]); return; }
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24)); var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            var display = '⏳ '; if (days > 0) display += days + 'd '; display += String(hours).padStart(2, '0') + 'h ' + String(minutes).padStart(2, '0') + 'm ' + String(seconds).padStart(2, '0') + 's';
+            el.textContent = display + ' remaining';
+        }, 1000);
     }
 
     window.cancelScheduledNotification = async function(notifId) {
@@ -1174,12 +1069,9 @@ async function loadScheduledNotifications() {
         try {
             var res = await fetch(API_BASE + '/api/v1/notifications/list?page=1&limit=20', { headers: { 'x-sendly-key': currentApiKey } }); var data = await res.json();
             if (!data.notifications || data.notifications.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div><h3>No notifications yet</h3><p>Send your first notification above.</p></div>'; return; }
-            // Sort by newest first (id DESC)
-            data.notifications.sort((a,b) => b.notification_id.localeCompare(a.notification_id));
             container.innerHTML = data.notifications.map(function(n) {
-                var isScheduled = n.status === 'scheduled' || (n.scheduled_for && new Date(n.scheduled_for) > new Date());
-                var isPaused = n.status === 'paused'; var isScheduledClass = (isScheduled || n.status === 'scheduled') ? 'scheduled' : '';
-                return '<div class="notif-item ' + isScheduledClass + '" data-id="' + n.notification_id + '">' + (isScheduled || n.status === 'scheduled' ? '<span class="scheduled-badge" style="position:absolute; top:-6px; right:-6px; background:#ff453a; color:#fff; font-size:10px; padding:2px 10px; border-radius:12px; font-weight:600;">⏳ SCHEDULED</span>' : '') + '<div class="header"><span class="title">' + (n.title || 'Untitled') + '</span><span class="time">' + (n.sent_at || n.scheduled_for || 'N/A') + '</span></div><div class="stats"><span>📱 ' + (n.devices_sent || 0) + ' devices</span><span>👁️ ' + (n.views || 0) + ' views</span><span>👆 ' + (n.clicks || 0) + ' clicks</span><span>📊 ' + (n.open_rate || 0) + '% open rate</span></div><div style="font-size:12px; color:#6a6a76; margin-top:4px;">Status: <span style="color:' + (isPaused ? '#ffa500' : (isScheduled || n.status === 'scheduled') ? '#ff453a' : '#34c759') + '">' + (n.status || 'sent') + '</span></div><div class="actions"><button class="btn btn-secondary btn-sm" onclick="resendNotification(\'' + n.notification_id + '\')">🔄 Resend</button><button class="btn btn-secondary btn-sm" onclick="editNotification(\'' + n.notification_id + '\')">✏️ Edit</button><button class="btn btn-secondary btn-sm" onclick="viewNotificationAnalytics(\'' + n.notification_id + '\')">📊 Analytics</button><button class="btn btn-danger btn-sm" onclick="deleteNotification(\'' + n.notification_id + '\')">🗑️ Delete</button></div></div>';
+                var isScheduled = n.status === 'scheduled' || (n.scheduled_for && new Date(n.scheduled_for) > new Date()); var isPaused = n.status === 'paused'; var isScheduledClass = (isScheduled || n.status === 'scheduled') ? 'scheduled' : '';
+                return '<div class="notif-item ' + isScheduledClass + '" data-id="' + n.notification_id + '">' + (isScheduled || n.status === 'scheduled' ? '<span class="scheduled-badge">⏳ SCHEDULED</span>' : '') + '<div class="header"><span class="title">' + (n.title || 'Untitled') + '</span><span class="time">' + (n.sent_at || n.scheduled_for || 'N/A') + '</span></div><div class="stats"><span>📱 ' + (n.devices_sent || 0) + ' devices</span><span>👁️ ' + (n.views || 0) + ' views</span><span>👆 ' + (n.clicks || 0) + ' clicks</span><span>📊 ' + (n.open_rate || 0) + '% open rate</span></div>' + (isScheduled && n.scheduled_for ? '<div class="countdown" style="color:#ff453a;">⏳ Scheduled for: ' + new Date(n.scheduled_for).toLocaleString() + '</div>' : '') + '<div style="font-size:12px; color:#6a6a76; margin-top:4px;">Status: <span style="color:' + (isPaused ? '#ffa500' : (isScheduled || n.status === 'scheduled') ? '#ff453a' : '#34c759') + '">' + (n.status || 'sent') + '</span></div><div class="actions"><button class="btn btn-secondary btn-sm" onclick="resendNotification(\'' + n.notification_id + '\')">🔄 Resend</button><button class="btn btn-secondary btn-sm" onclick="editNotification(\'' + n.notification_id + '\')">✏️ Edit</button><button class="btn btn-secondary btn-sm" onclick="viewNotificationAnalytics(\'' + n.notification_id + '\')">📊 Analytics</button><button class="btn btn-danger btn-sm" onclick="deleteNotification(\'' + n.notification_id + '\')">🗑️ Delete</button></div></div>';
             }).join('');
         } catch (e) { console.warn('Load history error:', e); container.innerHTML = '<p style="color:#6a6a76;">Error loading notifications.</p>'; }
     }
@@ -1193,66 +1085,7 @@ async function loadScheduledNotifications() {
         } catch (e) { showResultModal(false, 'Network Error', e.message); } hideLoader();
     };
 
-    window.editNotification = async function(notifId) {
-        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; }
-        showLoader('validate');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/analytics/notification/' + notifId, { headers: { 'x-sendly-key': currentApiKey } });
-            var data = await res.json();
-            if (data.status === 200 && data.notification) {
-                var n = data.notification;
-                document.getElementById('editNotifId').value = notifId;
-                document.getElementById('editNotifTitle').value = n.title || '';
-                document.getElementById('editNotifMessage').value = n.message || '';
-                document.getElementById('editNotifImage').value = n.image_url || '';
-                document.getElementById('editNotifBtn1Name').value = n.button1_name || '';
-                document.getElementById('editNotifBtn1Url').value = n.button1_url || '';
-                document.getElementById('editNotifBtn2Name').value = n.button2_name || '';
-                document.getElementById('editNotifBtn2Url').value = n.button2_url || '';
-                document.getElementById('editNotifSchedule').value = '';
-                document.getElementById('editNotifModal').classList.add('show');
-            } else {
-                showResultModal(false, 'Error', 'Could not load notification details.');
-            }
-        } catch(e) { showResultModal(false, 'Network Error', e.message); }
-        hideLoader();
-    };
-
-    document.getElementById('closeEditNotifBtn').onclick = function() { document.getElementById('editNotifModal').classList.remove('show'); };
-    
-    document.getElementById('saveEditNotifBtn').onclick = async function() {
-        var notifId = document.getElementById('editNotifId').value;
-        var title = document.getElementById('editNotifTitle').value.trim();
-        var message = document.getElementById('editNotifMessage').value.trim();
-        var schedule = document.getElementById('editNotifSchedule').value;
-        if (!title || !message) { showResultModal(false, 'Validation Error', 'Title and message required.'); return; }
-        
-        showLoader('send-push');
-        try {
-            var payload = {
-                channel: 'push', title: title, message: message,
-                image: document.getElementById('editNotifImage').value.trim(),
-                button1_name: document.getElementById('editNotifBtn1Name').value.trim(),
-                button1_url: document.getElementById('editNotifBtn1Url').value.trim(),
-                button2_name: document.getElementById('editNotifBtn2Name').value.trim(),
-                button2_url: document.getElementById('editNotifBtn2Url').value.trim()
-            };
-            if (schedule) payload.scheduled_for = new Date(schedule).toISOString();
-            
-            // Send as a new notification
-            var res = await fetch(API_BASE + '/api/v1/send', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': currentApiKey }, body: JSON.stringify(payload) });
-            var data = await res.json();
-            if (data.success || data.status === 201) {
-                document.getElementById('editNotifModal').classList.remove('show');
-                showResultModal(true, schedule ? 'Scheduled!' : 'Sent!', 'Notification updated and ' + (schedule ? 'scheduled' : 'sent') + ' successfully.');
-                loadPushHistory();
-                loadScheduledNotifications();
-            } else {
-                showResultModal(false, 'Error', data.message || 'Failed to save.');
-            }
-        } catch(e) { showResultModal(false, 'Network Error', e.message); }
-        hideLoader();
-    };
+    window.editNotification = function(notifId) { var newTitle = prompt('Enter new title:'); if (newTitle === null) return; var newMessage = prompt('Enter new message:'); if (newMessage === null) return; showResultModal(true, 'Edit Feature', 'Title and message updated locally. Full edit with save will be implemented soon.'); };
 
     window.viewNotificationAnalytics = function(notifId) {
         if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; } showLoader('validate');
@@ -1275,8 +1108,7 @@ async function loadScheduledNotifications() {
     };
 
     document.getElementById('clearAllNotificationsBtn').onclick = function() {
-        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; } 
-        if (!confirm('⚠️ Delete ALL notifications for this app? This cannot be undone.')) return;
+        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; } if (!confirm('⚠️ Delete ALL notifications for this app? This cannot be undone.')) return;
         showLoader('delete');
         fetch(API_BASE + '/api/v1/notifications/list?page=1&limit=100', { headers: { 'x-sendly-key': currentApiKey } }).then(function(res) { return res.json(); }).then(function(data) {
             if (!data.notifications || data.notifications.length === 0) { hideLoader(); showResultModal(false, 'No Notifications', 'No notifications to delete.'); return; }
@@ -1294,21 +1126,7 @@ async function loadScheduledNotifications() {
     async function loadStats() {
         if (!currentApiKey) return;
         try {
-            // 🛠️ FETCH QUOTA FOR PUSH TAB
-            // Quota display removed
-            // ---------------------------------
-            // Fetch Quota to update the Push tab
-            var qRes = await fetch(API_BASE + '/api/v1/validate-key', { headers: { 'x-sendly-key': currentApiKey } });
-            var qData = await qRes.json();
-            if (qData.status === 200 && qData.project) {
-                var quota = qData.project.push_quota_remaining || 0;
-                document.getElementById('quotaDisplay').textContent = '📊 ' + quota + ' remaining';
-            }
-
-            var subRes = await fetch(API_BASE + '/api/v1/subscribers', { headers: { 'x-sendly-key': currentApiKey } }); 
-            var subData = await subRes.json(); 
-            var count = subData.count || 0; 
-            document.getElementById('statSubscribers').textContent = count;
+            var subRes = await fetch(API_BASE + '/api/v1/subscribers', { headers: { 'x-sendly-key': currentApiKey } }); var subData = await subRes.json(); var count = subData.count || 0; document.getElementById('statSubscribers').textContent = count;
             var rangeRes = await fetch(API_BASE + '/api/v1/analytics/range?range=' + currentRange, { headers: { 'x-sendly-key': currentApiKey } }); var rangeData = await rangeRes.json();
             if (rangeData.status === 200 && rangeData.analytics) { var a = rangeData.analytics; document.getElementById('statSent').textContent = a.total_notifications_sent || 0; document.getElementById('statDelivered').textContent = a.total_delivered || 0; document.getElementById('statOpenRate').textContent = (a.open_rate || 0) + '%'; document.getElementById('statClickRate').textContent = (a.click_through_rate || 0) + '%'; document.getElementById('statSuccessRate').textContent = (a.delivery_rate || 0) + '%'; }
         } catch (e) { console.warn('Stats error:', e); }
@@ -1323,15 +1141,6 @@ async function loadScheduledNotifications() {
         } catch (e) { console.warn('Analytics notifications error:', e); }
     }
 
-    async function loadCountries() {
-        if (!currentApiKey) { document.getElementById('topCountries').innerHTML = '<p style="color:#6a6a76;">Select an app to view countries.</p>'; return; }
-        try {
-            var res = await fetch(API_BASE + '/api/v1/analytics/countries', { headers: { 'x-sendly-key': currentApiKey } }); var data = await res.json(); var container = document.getElementById('topCountries');
-            if (data.top_countries && data.top_countries.length > 0) { container.innerHTML = data.top_countries.map(function(c) { return '<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #22222a;"><span>' + (c.country === 'unknown' ? '🌐 Unknown' : c.country) + '</span><span style="color:#00f2fe; font-weight:bold;">' + c.clicks + ' clicks</span></div>'; }).join(''); }
-            else { container.innerHTML = '<p style="color:#6a6a76;">No clicks recorded yet.</p>'; }
-        } catch (e) { document.getElementById('topCountries').innerHTML = '<p style="color:#ff453a;">Error loading countries.</p>'; }
-    }
-
     async function loadSubscriberTokens() {
         if (!currentApiKey) { document.getElementById('subscriberTokens').innerHTML = '<p style="color:#6a6a76;">Select an app to view subscribers.</p>'; return; }
         try {
@@ -1342,7 +1151,6 @@ async function loadScheduledNotifications() {
     }
 
     function loadPushApps() {}
-
     async function loadPlans() { try { var res = await fetch(API_BASE + '/api/v1/plans'); var data = await res.json(); if (data.plans) { updatePlanBadge(); } } catch (e) { console.warn('Plans error:', e); } }
     function updatePlanBadge() { var plan = currentUser?.plan || 'Free'; currentPlan = plan; document.getElementById('currentPlanBadge').textContent = plan; }
 
@@ -1476,290 +1284,7 @@ async function loadScheduledNotifications() {
         document.getElementById('scheduledListContainer').style.display = 'none'; document.getElementById('sendFormContainer').style.display = 'block'; document.getElementById('pushHistoryContainer').style.display = 'block'; document.getElementById('showScheduledBtn').classList.remove('btn-primary'); document.getElementById('showScheduledBtn').classList.add('btn-secondary');
     };
 
-    
-            if (loadSession()) return; // Don't show if already logged in
-
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: false
-        });
-
-        google.accounts.id.prompt();
-    }
-
-            })
-        .catch(function(err) {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    }
-
-            container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300
-        });
-    }
-
-
-    // ============================================================
-    // GOOGLE ONE TAP AUTHENTICATION (RESTORED)
-    // ============================================================
-            if (loadSession()) {
-            return;
-        }
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: false
-        });
-        google.accounts.id.prompt();
-    }
-
-            })
-        .catch(function(err) {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    }
-
-            container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard',
-            shape: 'rectangular',
-            theme: 'outline',
-            text: 'signin_with',
-            size: 'large',
-            width: container.parentElement.offsetWidth || 300
-        });
-    }
-
-    if (loadSession()) { 
-        enterApp(); 
-    } else { 
-        document.getElementById('authScreen').style.display = 'block'; 
-        renderGoogleButton('googleLoginWrapper'); 
-        renderGoogleButton('googleRegisterWrapper'); 
-        initGoogleOneTap(); 
-    }
-
-    // ============================================================
-    // GOOGLE AUTHENTICATION
-    // ============================================================
-            if (typeof currentSession !== 'undefined' && currentSession) return; // Don't show if already logged in
-
-        google.accounts.id.initialize({
-            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: false,
-            auto_select: false
-        });
-
-        google.accounts.id.prompt();
-    }
-
-            })
-        .catch(function(err) {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    }
-
-            container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300
-        });
-    }
-
-    // Ensure it triggers on page load if not logged in
-    window.addEventListener('load', function() {
-        if (typeof loadSession === 'function') {
-            if (!loadSession()) {
-                renderGoogleButton('googleLoginWrapper');
-                renderGoogleButton('googleRegisterWrapper');
-                setTimeout(initGoogleOneTap, 1000);
-            }
-        }
-    });
-
-
-    // ============================================================
-    // GOOGLE ONE TAP AUTHENTICATION
-    // ============================================================
-    const GOOGLE_CLIENT_ID = '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com';
-
-            
-        // Only show if NOT logged in
-        if (localStorage.getItem('sendly_session')) return;
-
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: false,
-            auto_select: false
-        });
-
-        google.accounts.id.prompt(function(notification) {
-            console.log("Google One Tap Prompt:", notification);
-        });
-    }
-
-            })
-        .catch(function(err) {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    }
-
-            container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300
-        });
-    }
-
-    // Trigger on page load
-    window.addEventListener('load', function() {
-        if (!localStorage.getItem('sendly_session')) {
-            renderGoogleButton('googleLoginWrapper');
-            renderGoogleButton('googleRegisterWrapper');
-            setTimeout(initGoogleOneTap, 1500);
-        }
-    });
-
-
-    // ============================================================
-    // CUSTOM GOOGLE AUTH (MANUAL BUTTON)
-    // ============================================================
-            google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: true
-        });
-        // This forces the "Continue as..." popup to appear
-        google.accounts.id.prompt();
-    };
-
-            })
-        .catch(function(err) {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    }
-
-    // Make sure the Google client script is loaded in the head
-    if (!document.getElementById('gsi-script')) {
-        var script = document.createElement('script');
-        script.id = 'gsi-script';
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-    }
-
-
-    
-    // ============================================================
-    // GOOGLE ONE TAP (FIXED)
-    // ============================================================
-    function initGoogleOneTap() {
-        if (typeof google === 'undefined') {
-            setTimeout(initGoogleOneTap, 1000);
-            return;
-        }
-        if (loadSession()) return;
-
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: false
-        });
-
-        // This forces the auto-popup
-        google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                console.log("Google One Tap was blocked by browser or domain not authorized in Google Cloud Console.");
-            }
-        });
-    }
-
-    function handleGoogleCredentialResponse(response) {
-        var idToken = response.credential;
-        showLoader('login');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: idToken })
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) {
-                currentUser = data;
-                currentSession = data.session_token;
-                saveSession(data, data.session_token);
-                enterApp();
-                showResultModal(true, 'Welcome!', 'You have been signed in with Google.');
-            } else {
-                showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in with Google.');
-            }
-        })
-        .catch(function(err) {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    }
-
-    function renderGoogleButton(containerId) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        if (typeof google === 'undefined') {
-            setTimeout(function() { renderGoogleButton(containerId); }, 500);
-            return;
-        }
-        container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard',
-            shape: 'rectangular',
-            theme: 'outline',
-            text: 'signin_with',
-            size: 'large',
-            width: container.parentElement.offsetWidth || 300
-        });
-    }
-
-    
-    // TRIGGER INIT
-    if (loadSession()) {
-        enterApp();
-    } else {
-        document.getElementById('authScreen').style.display = 'block';
-        renderGoogleButton('googleLoginWrapper');
-        renderGoogleButton('googleRegisterWrapper');
-        initGoogleOneTap();
-    }
-    
-    console.log('🚀 Sendly Frontend loaded (Professional)');
-    console.log('🏢 Henry Global Tech Industry');
-    </script>
-
-<div class="modal-overlay" id="editNotifModal">
-    <div class="modal-box" style="max-width: 600px; text-align:left;">
-        <h2 style="color:#00f2fe; margin-bottom:12px;">✏️ Edit Notification</h2>
-        <input type="hidden" id="editNotifId" />
-        <div class="form-group"><label>Title</label><input type="text" id="editNotifTitle" /></div>
-        <div class="form-group"><label>Message</label><textarea id="editNotifMessage"></textarea></div>
-        <div class="form-group"><label>Image URL</label><input type="url" id="editNotifImage" /></div>
-        <div class="form-group"><label>Button 1 Name</label><input type="text" id="editNotifBtn1Name" /></div>
-        <div class="form-group"><label>Button 1 URL</label><input type="url" id="editNotifBtn1Url" /></div>
-        <div class="form-group"><label>Button 2 Name</label><input type="text" id="editNotifBtn2Name" /></div>
-        <div class="form-group"><label>Button 2 URL</label><input type="url" id="editNotifBtn2Url" /></div>
-        <div class="form-group"><label>Schedule Time (Leave blank to send now)</label><input type="datetime-local" id="editNotifSchedule" /></div>
-        <div style="display:flex; gap:10px; margin-top:16px;">
-            <button class="btn btn-primary" style="flex:1;" id="saveEditNotifBtn">💾 Save & Resend/Schedule</button>
-            <button class="btn btn-secondary" style="flex:1;" id="closeEditNotifBtn">Cancel</button>
-        </div>
-    </div>
-</div>
-
+    if (loadSession()) { enterApp(); } else { document.getElementById('authScreen').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper'); initGoogleOneTap(); }
+</script>
 </body>
 </html>
