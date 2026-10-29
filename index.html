@@ -211,11 +211,14 @@
                                 const geoData = await geoRes.json();
                                 const exactCountry = geoData.countryName || geoData.countryCode || 'unknown';
                                 if (exactCountry && exactCountry !== 'unknown') {
+                                    const updatedSub = JSON.parse(JSON.stringify(subscription));
+                                    updatedSub.region = exactCountry;
                                     await fetch(SERVER_URL + '/api/v1/subscribe', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY },
-                                        body: JSON.stringify({ endpoint: subscription.endpoint, keys: subscription.keys, region: exactCountry })
+                                        body: JSON.stringify(updatedSub)
                                     });
+                                    console.log('✅ GPS country sent to server:', exactCountry);
                                 }
                             } catch (e) {}
                             setTimeout(() => { closePopup(); }, 1500);
