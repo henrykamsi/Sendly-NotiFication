@@ -1480,7 +1480,64 @@ async function loadScheduledNotifications() {
         document.getElementById('scheduledListContainer').style.display = 'none'; document.getElementById('sendFormContainer').style.display = 'block'; document.getElementById('pushHistoryContainer').style.display = 'block'; document.getElementById('showScheduledBtn').classList.remove('btn-primary'); document.getElementById('showScheduledBtn').classList.add('btn-secondary');
     };
 
-    if (loadSession()) { enterApp(); } else { document.getElementById('authScreen').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper'); initGoogleOneTap(); }
+    
+    function initGoogleOneTap() {
+        if (typeof google === 'undefined') { setTimeout(initGoogleOneTap, 1000); return; }
+        if (loadSession()) return; // Don't show if already logged in
+
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            cancel_on_tap_outside: false
+        });
+
+        google.accounts.id.prompt();
+    }
+
+    function handleGoogleCredentialResponse(response) {
+        showLoader('login');
+        fetch(API_BASE + '/api/v1/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: response.credential })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            hideLoader();
+            if (data.status === 200 || data.status === 201) {
+                currentUser = data;
+                currentSession = data.session_token;
+                saveSession(data, data.session_token);
+                enterApp();
+                showResultModal(true, 'Welcome!', 'You have been signed in with Google.');
+            } else {
+                showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in with Google.');
+            }
+        })
+        .catch(function(err) {
+            hideLoader();
+            showResultModal(false, 'Network Error', err.message);
+        });
+    }
+
+    function renderGoogleButton(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        if (typeof google === 'undefined') { setTimeout(function() { renderGoogleButton(containerId); }, 500); return; }
+        container.innerHTML = '';
+        google.accounts.id.renderButton(container, {
+            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300
+        });
+    }
+
+    if (loadSession()) { 
+        enterApp(); 
+    } else { 
+        document.getElementById('authScreen').style.display = 'block'; 
+        renderGoogleButton('googleLoginWrapper'); 
+        renderGoogleButton('googleRegisterWrapper'); 
+        initGoogleOneTap(); 
+    }
 </script>
 
 <div class="modal-overlay" id="editNotifModal">
