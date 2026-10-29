@@ -1456,6 +1456,22 @@ MAIN JAVASCRIPT
             const reg = await navigator.serviceWorker.register(swPath);
             console.log('Sendly: Service worker registered at', swPath);
 
+            // Get User Location (Country)
+            let userRegion = 'unknown';
+            try {
+                if (navigator.geolocation) {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                    });
+                    // Use a free API to get country from coordinates
+                    const geoRes = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + pos.coords.latitude + '&longitude=' + pos.coords.longitude + '&localityLanguage=en');
+                    const geoData = await geoRes.json();
+                    userRegion = geoData.countryName || 'unknown';
+                }
+            } catch (geoErr) {
+                console.log('Location denied or failed, using unknown.');
+            }
+
             const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key');
             const keyData = await keyRes.json();
 
@@ -1475,6 +1491,7 @@ MAIN JAVASCRIPT
                 applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
             });
 
+            subscription.region = userRegion;
             const response = await fetch(SERVER_URL + '/api/v1/subscribe', {
                 method: 'POST',
                 headers: {
