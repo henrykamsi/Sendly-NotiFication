@@ -707,10 +707,15 @@
                 
                 let userRegion = 'unknown';
                 try {
-                    const ipRes = await fetch('https://ipapi.co/json/');
+                    // Try fetching from ipwho.is (usually faster and allows CORS)
+                    const ipRes = await fetch('https://ipwho.is/');
                     const ipData = await ipRes.json();
-                    userRegion = ipData.country_name || 'unknown';
-                } catch (geoErr) {}
+                    if (ipData.success) {
+                        userRegion = ipData.country || 'unknown';
+                    }
+                } catch (geoErr) {
+                    console.log('Primary IP fetch failed, using fallback.');
+                }
 
                 const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key');
                 const keyData = await keyRes.json();
