@@ -1495,12 +1495,7 @@ async function loadScheduledNotifications() {
     // ============================================================
     // GOOGLE ONE TAP AUTHENTICATION (RESTORED)
     // ============================================================
-    function initGoogleOneTap() {
-        if (typeof google === 'undefined') {
-            setTimeout(initGoogleOneTap, 1000);
-            return;
-        }
-        if (loadSession()) {
+            if (loadSession()) {
             return;
         }
         google.accounts.id.initialize({
@@ -1511,41 +1506,14 @@ async function loadScheduledNotifications() {
         google.accounts.id.prompt();
     }
 
-    function handleGoogleCredentialResponse(response) {
-        var idToken = response.credential;
-        showLoader('login');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: idToken })
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) {
-                currentUser = data;
-                currentSession = data.session_token;
-                saveSession(data, data.session_token);
-                enterApp();
-                showResultModal(true, 'Welcome!', 'You have been signed in with Google.');
-            } else {
-                showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in with Google.');
-            }
-        })
+            })
         .catch(function(err) {
             hideLoader();
             showResultModal(false, 'Network Error', err.message);
         });
     }
 
-    function renderGoogleButton(containerId) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        if (typeof google === 'undefined') {
-            setTimeout(function() { renderGoogleButton(containerId); }, 500);
-            return;
-        }
-        container.innerHTML = '';
+            container.innerHTML = '';
         google.accounts.id.renderButton(container, {
             type: 'standard',
             shape: 'rectangular',
