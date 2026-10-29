@@ -289,6 +289,11 @@
         </div>
         <button class="btn-primary" id="loginBtn">Sign In</button>
         <div class="auth-divider">or</div>
+        <!-- GOOGLE BUTTON -->
+        <button id="customGoogleLoginBtn" onclick="triggerGoogleAuth()" style="width:100%; padding:12px; background:#ffffff; color:#000; border:1px solid #d9d9e0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" height="20" alt="G">
+            Sign in with Google
+        </button>
         <div class="google-btn-wrapper" id="googleLoginWrapper"></div>
         <div class="auth-toggle">
             Don't have an account? <a id="showRegister">Create one</a>
@@ -331,6 +336,11 @@
         </div>
         <button class="btn-primary" id="registerBtn">Create Account</button>
         <div class="auth-divider">or</div>
+        <!-- GOOGLE BUTTON -->
+        <button id="customGoogleRegisterBtn" onclick="triggerGoogleAuth()" style="width:100%; padding:12px; background:#ffffff; color:#000; border:1px solid #d9d9e0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20" height="20" alt="G">
+            Sign up with Google
+        </button>
         <div class="google-btn-wrapper" id="googleRegisterWrapper"></div>
         <div class="auth-toggle">
             Already have an account? <a id="showLogin">Sign in</a>
@@ -1615,6 +1625,61 @@ async function loadScheduledNotifications() {
             setTimeout(initGoogleOneTap, 1500);
         }
     });
+
+
+    // ============================================================
+    // CUSTOM GOOGLE AUTH (MANUAL BUTTON)
+    // ============================================================
+    window.triggerGoogleAuth = function() {
+        if (typeof google === 'undefined') {
+            showResultModal(false, 'Error', 'Google services are still loading. Please wait a second and try again.');
+            return;
+        }
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            cancel_on_tap_outside: true
+        });
+        // This forces the "Continue as..." popup to appear
+        google.accounts.id.prompt();
+    };
+
+    function handleGoogleCredentialResponse(response) {
+        var idToken = response.credential;
+        showLoader('login');
+        fetch(API_BASE + '/api/v1/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: idToken })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            hideLoader();
+            if (data.status === 200 || data.status === 201) {
+                currentUser = data;
+                currentSession = data.session_token;
+                saveSession(data, data.session_token);
+                enterApp();
+                showResultModal(true, 'Welcome!', 'You have been signed in with Google.');
+            } else {
+                showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in with Google.');
+            }
+        })
+        .catch(function(err) {
+            hideLoader();
+            showResultModal(false, 'Network Error', err.message);
+        });
+    }
+
+    // Make sure the Google client script is loaded in the head
+    if (!document.getElementById('gsi-script')) {
+        var script = document.createElement('script');
+        script.id = 'gsi-script';
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    }
 
 </script>
 
