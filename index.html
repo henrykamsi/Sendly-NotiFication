@@ -1198,6 +1198,17 @@
     async function loadStats() {
         if (!currentApiKey) return;
         try {
+            // 🛠️ FETCH QUOTA FOR PUSH TAB
+            try {
+                var qRes = await fetch(API_BASE + '/api/v1/validate-key', { headers: { 'x-sendly-key': currentApiKey } });
+                var qData = await qRes.json();
+                if (qData.status === 200 && qData.project) {
+                    var quota = qData.project.push_quota_remaining;
+                    var quotaEl = document.getElementById('quotaDisplay');
+                    if (quotaEl) quotaEl.textContent = '📊 ' + (quota !== undefined ? quota : 0) + ' remaining';
+                }
+            } catch (e) { console.log('Quota fetch error', e); }
+            // ---------------------------------
             // Fetch Quota to update the Push tab
             var qRes = await fetch(API_BASE + '/api/v1/validate-key', { headers: { 'x-sendly-key': currentApiKey } });
             var qData = await qRes.json();
