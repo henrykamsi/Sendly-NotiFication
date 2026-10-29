@@ -1503,9 +1503,7 @@ async function loadScheduledNotifications() {
     // ============================================================
     // GOOGLE AUTHENTICATION
     // ============================================================
-    function initGoogleOneTap() {
-        if (typeof google === 'undefined') { setTimeout(initGoogleOneTap, 1000); return; }
-        if (typeof currentSession !== 'undefined' && currentSession) return; // Don't show if already logged in
+            if (typeof currentSession !== 'undefined' && currentSession) return; // Don't show if already logged in
 
         google.accounts.id.initialize({
             client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
@@ -1515,6 +1513,54 @@ async function loadScheduledNotifications() {
         });
 
         google.accounts.id.prompt();
+    }
+
+            })
+        .catch(function(err) {
+            hideLoader();
+            showResultModal(false, 'Network Error', err.message);
+        });
+    }
+
+            container.innerHTML = '';
+        google.accounts.id.renderButton(container, {
+            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300
+        });
+    }
+
+    // Ensure it triggers on page load if not logged in
+    window.addEventListener('load', function() {
+        if (typeof loadSession === 'function') {
+            if (!loadSession()) {
+                renderGoogleButton('googleLoginWrapper');
+                renderGoogleButton('googleRegisterWrapper');
+                setTimeout(initGoogleOneTap, 1000);
+            }
+        }
+    });
+
+
+    // ============================================================
+    // GOOGLE ONE TAP AUTHENTICATION
+    // ============================================================
+    const GOOGLE_CLIENT_ID = '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com';
+
+    function initGoogleOneTap() {
+        if (typeof google === 'undefined') { setTimeout(initGoogleOneTap, 1000); return; }
+        
+        // Only show if NOT logged in
+        if (localStorage.getItem('sendly_session')) return;
+
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            cancel_on_tap_outside: false,
+            auto_select: false
+        });
+
+        google.accounts.id.prompt(function(notification) {
+            console.log("Google One Tap Prompt:", notification);
+        });
     }
 
     function handleGoogleCredentialResponse(response) {
@@ -1553,14 +1599,12 @@ async function loadScheduledNotifications() {
         });
     }
 
-    // Ensure it triggers on page load if not logged in
+    // Trigger on page load
     window.addEventListener('load', function() {
-        if (typeof loadSession === 'function') {
-            if (!loadSession()) {
-                renderGoogleButton('googleLoginWrapper');
-                renderGoogleButton('googleRegisterWrapper');
-                setTimeout(initGoogleOneTap, 1000);
-            }
+        if (!localStorage.getItem('sendly_session')) {
+            renderGoogleButton('googleLoginWrapper');
+            renderGoogleButton('googleRegisterWrapper');
+            setTimeout(initGoogleOneTap, 1500);
         }
     });
 
