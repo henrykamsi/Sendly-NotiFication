@@ -991,7 +991,12 @@ APP CONTAINER
             <div class="stat-box"><div class="number" id="statSuccessRate">0%</div><div class="label">📊 Success Rate</div></div>
         </div>
 
-        <div class="card">
+        
+        <div class="card" style="margin-top: 18px;">
+            <h3>🌍 Top Countries by Clicks</h3>
+            <div id="topCountries"><p style="color:#6a6a76; font-size:14px;">Loading countries...</p></div>
+        </div>
+<div class="card">
             <h3>📱 Subscriber Tokens</h3>
             <div id="subscriberTokens"><p style="color:#6a6a76; font-size:14px;">Select an app to view subscribers.</p></div>
         </div>
@@ -1893,7 +1898,7 @@ MAIN JAVASCRIPT
             var tabId = this.dataset.tab;
             document.querySelectorAll('.tab-content').forEach(function(t) { t.style.display = 'none'; });
             document.getElementById(tabId).style.display = 'block';
-            if (tabId === 'tabStats') { loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); }
+            if (tabId === 'tabStats') { loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); loadCountries(); }
             if (tabId === 'tabPush') { loadPushApps(); loadPushHistory(); loadScheduledNotifications(); updateScheduledCount(); }
             if (tabId === 'tabSettings') { loadCrackSignal(); loadWebhooks(); loadProfile(); }
         };
@@ -2808,6 +2813,33 @@ document.addEventListener('click', function() {
         }
     }
 
+    
+    async function loadCountries() {
+        if (!currentApiKey) {
+            document.getElementById('topCountries').innerHTML = '<p style="color:#6a6a76;">Select an app to view countries.</p>';
+            return;
+        }
+        try {
+            var res = await fetch(API_BASE + '/api/v1/analytics/countries', {
+                headers: { 'x-sendly-key': currentApiKey }
+            });
+            var data = await res.json();
+            var container = document.getElementById('topCountries');
+            if (data.top_countries && data.top_countries.length > 0) {
+                container.innerHTML = data.top_countries.map(function(c) {
+                    return '<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #22222a;">' +
+                        '<span>' + (c.country === 'unknown' ? '🌐 Unknown' : c.country) + '</span>' +
+                        '<span style="color:#00f2fe; font-weight:bold;">' + c.clicks + ' clicks</span>' +
+                    '</div>';
+                }).join('');
+            } else {
+                container.innerHTML = '<p style="color:#6a6a76;">No clicks recorded yet.</p>';
+            }
+        } catch (e) {
+            document.getElementById('topCountries').innerHTML = '<p style="color:#ff453a;">Error loading countries.</p>';
+        }
+    }
+
     async function loadSubscriberTokens() {
         if (!currentApiKey) {
             document.getElementById('subscriberTokens').innerHTML = '<p style="color:#6a6a76;">Select an app to view subscribers.</p>';
@@ -2859,7 +2891,7 @@ document.addEventListener('click', function() {
             });
             var data = await res.json();
             if (data.status === 200 && data.user) {
-                document.getElementById('profileName').textContent = data.user.name + ' ' + (data.user.surname || '');
+                document.getElementById('profileName').textContent = (data.user.name || '') + ' ' + (data.user.surname || '');
                 document.getElementById('profileEmail').textContent = data.user.email;
                 document.getElementById('profilePlan').textContent = data.user.plan || 'Free';
             }
