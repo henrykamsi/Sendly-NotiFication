@@ -1178,6 +1178,8 @@ async function loadScheduledNotifications() {
         try {
             var res = await fetch(API_BASE + '/api/v1/notifications/list?page=1&limit=20', { headers: { 'x-sendly-key': currentApiKey } }); var data = await res.json();
             if (!data.notifications || data.notifications.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="icon">📋</div><h3>No notifications yet</h3><p>Send your first notification above.</p></div>'; return; }
+            // Sort by newest first (id DESC)
+            data.notifications.sort((a,b) => b.notification_id.localeCompare(a.notification_id));
             container.innerHTML = data.notifications.map(function(n) {
                 var isScheduled = n.status === 'scheduled' || (n.scheduled_for && new Date(n.scheduled_for) > new Date());
                 var isPaused = n.status === 'paused'; var isScheduledClass = (isScheduled || n.status === 'scheduled') ? 'scheduled' : '';
@@ -1195,7 +1197,66 @@ async function loadScheduledNotifications() {
         } catch (e) { showResultModal(false, 'Network Error', e.message); } hideLoader();
     };
 
-    window.editNotification = function(notifId) { var newTitle = prompt('Enter new title:'); if (newTitle === null) return; var newMessage = prompt('Enter new message:'); if (newMessage === null) return; showResultModal(true, 'Edit Feature', 'Title and message updated locally. Full edit with save will be implemented soon.'); };
+    window.editNotification = async function(notifId) {
+        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; }
+        showLoader('validate');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/analytics/notification/' + notifId, { headers: { 'x-sendly-key': currentApiKey } });
+            var data = await res.json();
+            if (data.status === 200 && data.notification) {
+                var n = data.notification;
+                document.getElementById('editNotifId').value = notifId;
+                document.getElementById('editNotifTitle').value = n.title || '';
+                document.getElementById('editNotifMessage').value = n.message || '';
+                document.getElementById('editNotifImage').value = n.image_url || '';
+                document.getElementById('editNotifBtn1Name').value = n.button1_name || '';
+                document.getElementById('editNotifBtn1Url').value = n.button1_url || '';
+                document.getElementById('editNotifBtn2Name').value = n.button2_name || '';
+                document.getElementById('editNotifBtn2Url').value = n.button2_url || '';
+                document.getElementById('editNotifSchedule').value = '';
+                document.getElementById('editNotifModal').classList.add('show');
+            } else {
+                showResultModal(false, 'Error', 'Could not load notification details.');
+            }
+        } catch(e) { showResultModal(false, 'Network Error', e.message); }
+        hideLoader();
+    };
+
+    document.getElementById('closeEditNotifBtn').onclick = function() { document.getElementById('editNotifModal').classList.remove('show'); };
+    
+    document.getElementById('saveEditNotifBtn').onclick = async function() {
+        var notifId = document.getElementById('editNotifId').value;
+        var title = document.getElementById('editNotifTitle').value.trim();
+        var message = document.getElementById('editNotifMessage').value.trim();
+        var schedule = document.getElementById('editNotifSchedule').value;
+        if (!title || !message) { showResultModal(false, 'Validation Error', 'Title and message required.'); return; }
+        
+        showLoader('send-push');
+        try {
+            var payload = {
+                channel: 'push', title: title, message: message,
+                image: document.getElementById('editNotifImage').value.trim(),
+                button1_name: document.getElementById('editNotifBtn1Name').value.trim(),
+                button1_url: document.getElementById('editNotifBtn1Url').value.trim(),
+                button2_name: document.getElementById('editNotifBtn2Name').value.trim(),
+                button2_url: document.getElementById('editNotifBtn2Url').value.trim()
+            };
+            if (schedule) payload.scheduled_for = new Date(schedule).toISOString();
+            
+            // Send as a new notification
+            var res = await fetch(API_BASE + '/api/v1/send', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': currentApiKey }, body: JSON.stringify(payload) });
+            var data = await res.json();
+            if (data.success || data.status === 201) {
+                document.getElementById('editNotifModal').classList.remove('show');
+                showResultModal(true, schedule ? 'Scheduled!' : 'Sent!', 'Notification updated and ' + (schedule ? 'scheduled' : 'sent') + ' successfully.');
+                loadPushHistory();
+                loadScheduledNotifications();
+            } else {
+                showResultModal(false, 'Error', data.message || 'Failed to save.');
+            }
+        } catch(e) { showResultModal(false, 'Network Error', e.message); }
+        hideLoader();
+    };
 
     window.viewNotificationAnalytics = function(notifId) {
         if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; } showLoader('validate');
@@ -1218,7 +1279,8 @@ async function loadScheduledNotifications() {
     };
 
     document.getElementById('clearAllNotificationsBtn').onclick = function() {
-        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; } if (!confirm('⚠️ Delete ALL notifications for this app? This cannot be undone.')) return;
+        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; } 
+        if (!confirm('⚠️ Delete ALL notifications for this app? This cannot be undone.')) return;
         showLoader('delete');
         fetch(API_BASE + '/api/v1/notifications/list?page=1&limit=100', { headers: { 'x-sendly-key': currentApiKey } }).then(function(res) { return res.json(); }).then(function(data) {
             if (!data.notifications || data.notifications.length === 0) { hideLoader(); showResultModal(false, 'No Notifications', 'No notifications to delete.'); return; }
@@ -1247,7 +1309,10 @@ async function loadScheduledNotifications() {
                 document.getElementById('quotaDisplay').textContent = '📊 ' + quota + ' remaining';
             }
 
-            var subRes = await fetch(API_BASE + '/api/v1/subscribers', { headers: { 'x-sendly-key': currentApiKey } }); var subData = await subRes.json(); var count = subData.count || 0; document.getElementById('statSubscribers').textContent = count;
+            var subRes = await fetch(API_BASE + '/api/v1/subscribers', { headers: { 'x-sendly-key': currentApiKey } }); 
+            var subData = await subRes.json(); 
+            var count = subData.count || 0; 
+            document.getElementById('statSubscribers').textContent = count;
             var rangeRes = await fetch(API_BASE + '/api/v1/analytics/range?range=' + currentRange, { headers: { 'x-sendly-key': currentApiKey } }); var rangeData = await rangeRes.json();
             if (rangeData.status === 200 && rangeData.analytics) { var a = rangeData.analytics; document.getElementById('statSent').textContent = a.total_notifications_sent || 0; document.getElementById('statDelivered').textContent = a.total_delivered || 0; document.getElementById('statOpenRate').textContent = (a.open_rate || 0) + '%'; document.getElementById('statClickRate').textContent = (a.click_through_rate || 0) + '%'; document.getElementById('statSuccessRate').textContent = (a.delivery_rate || 0) + '%'; }
         } catch (e) { console.warn('Stats error:', e); }
@@ -1417,5 +1482,25 @@ async function loadScheduledNotifications() {
 
     if (loadSession()) { enterApp(); } else { document.getElementById('authScreen').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper'); initGoogleOneTap(); }
 </script>
+
+<div class="modal-overlay" id="editNotifModal">
+    <div class="modal-box" style="max-width: 600px; text-align:left;">
+        <h2 style="color:#00f2fe; margin-bottom:12px;">✏️ Edit Notification</h2>
+        <input type="hidden" id="editNotifId" />
+        <div class="form-group"><label>Title</label><input type="text" id="editNotifTitle" /></div>
+        <div class="form-group"><label>Message</label><textarea id="editNotifMessage"></textarea></div>
+        <div class="form-group"><label>Image URL</label><input type="url" id="editNotifImage" /></div>
+        <div class="form-group"><label>Button 1 Name</label><input type="text" id="editNotifBtn1Name" /></div>
+        <div class="form-group"><label>Button 1 URL</label><input type="url" id="editNotifBtn1Url" /></div>
+        <div class="form-group"><label>Button 2 Name</label><input type="text" id="editNotifBtn2Name" /></div>
+        <div class="form-group"><label>Button 2 URL</label><input type="url" id="editNotifBtn2Url" /></div>
+        <div class="form-group"><label>Schedule Time (Leave blank to send now)</label><input type="datetime-local" id="editNotifSchedule" /></div>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+            <button class="btn btn-primary" style="flex:1;" id="saveEditNotifBtn">💾 Save & Resend/Schedule</button>
+            <button class="btn btn-secondary" style="flex:1;" id="closeEditNotifBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
