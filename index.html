@@ -2237,7 +2237,10 @@ MAIN JAVASCRIPT
             }
             var deleteRes = await fetch(API_BASE + '/api/v1/apps/' + app.id, {
                 method: 'DELETE',
-                headers: { 'x-sendly-key': apiKey }
+                headers: { 
+                    'x-sendly-key': apiKey,
+                    'x-session-token': currentSession
+                }
             });
             var result = await deleteRes.json();
             if (result.status === 001 || result.success) {
