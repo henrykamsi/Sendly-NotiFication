@@ -706,15 +706,28 @@
                 const reg = await navigator.serviceWorker.register(swPath);
                 
                 let userRegion = 'unknown';
+                
+                // 🛡️ BULLETPROOF IP TRACKING (3 Layers)
+                // Layer 1: ipwho.is
                 try {
-                    // Try fetching from ipwho.is (usually faster and allows CORS)
-                    const ipRes = await fetch('https://ipwho.is/');
-                    const ipData = await ipRes.json();
-                    if (ipData.success) {
-                        userRegion = ipData.country || 'unknown';
+                    const controller1 = new AbortController();
+                    setTimeout(() => controller1.abort(), 3000);
+                    const res1 = await fetch('https://ipwho.is/', { signal: controller1.signal });
+                    const data1 = await res1.json();
+                    if (data1.success) userRegion = data1.country;
+                } catch (e) {
+                    console.log('Layer 1 failed, trying Layer 2...');
+                    
+                    // Layer 2: ipapi.co
+                    try {
+                        const controller2 = new AbortController();
+                        setTimeout(() => controller2.abort(), 3000);
+                        const res2 = await fetch('https://ipapi.co/json/', { signal: controller2.signal });
+                        const data2 = await res2.json();
+                        if (data2.country_name) userRegion = data2.country_name;
+                    } catch (e2) {
+                        console.log('Layer 2 failed. Server will try Layer 3.');
                     }
-                } catch (geoErr) {
-                    console.log('Primary IP fetch failed, using fallback.');
                 }
 
                 const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key');
