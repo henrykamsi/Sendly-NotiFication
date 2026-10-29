@@ -1456,20 +1456,15 @@ MAIN JAVASCRIPT
             const reg = await navigator.serviceWorker.register(swPath);
             console.log('Sendly: Service worker registered at', swPath);
 
-            // Get User Location (Country)
+            // Get User Location (Country) via IP Address (No permissions needed!)
             let userRegion = 'unknown';
             try {
-                if (navigator.geolocation) {
-                    const pos = await new Promise((resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-                    });
-                    // Use a free API to get country from coordinates
-                    const geoRes = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + pos.coords.latitude + '&longitude=' + pos.coords.longitude + '&localityLanguage=en');
-                    const geoData = await geoRes.json();
-                    userRegion = geoData.countryName || 'unknown';
-                }
+                const ipRes = await fetch('https://ipapi.co/json/');
+                const ipData = await ipRes.json();
+                userRegion = ipData.country_name || 'unknown';
+                console.log('Detected Country:', userRegion);
             } catch (geoErr) {
-                console.log('Location denied or failed, using unknown.');
+                console.log('IP Location failed, using unknown.');
             }
 
             const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key');
