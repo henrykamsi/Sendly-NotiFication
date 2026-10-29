@@ -1630,12 +1630,7 @@ async function loadScheduledNotifications() {
     // ============================================================
     // CUSTOM GOOGLE AUTH (MANUAL BUTTON)
     // ============================================================
-    window.triggerGoogleAuth = function() {
-        if (typeof google === 'undefined') {
-            showResultModal(false, 'Error', 'Google services are still loading. Please wait a second and try again.');
-            return;
-        }
-        google.accounts.id.initialize({
+            google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
             callback: handleGoogleCredentialResponse,
             cancel_on_tap_outside: true
@@ -1643,6 +1638,49 @@ async function loadScheduledNotifications() {
         // This forces the "Continue as..." popup to appear
         google.accounts.id.prompt();
     };
+
+            })
+        .catch(function(err) {
+            hideLoader();
+            showResultModal(false, 'Network Error', err.message);
+        });
+    }
+
+    // Make sure the Google client script is loaded in the head
+    if (!document.getElementById('gsi-script')) {
+        var script = document.createElement('script');
+        script.id = 'gsi-script';
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    }
+
+
+    
+    // ============================================================
+    // GOOGLE ONE TAP (FIXED)
+    // ============================================================
+    function initGoogleOneTap() {
+        if (typeof google === 'undefined') {
+            setTimeout(initGoogleOneTap, 1000);
+            return;
+        }
+        if (loadSession()) return;
+
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            cancel_on_tap_outside: false
+        });
+
+        // This forces the auto-popup
+        google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                console.log("Google One Tap was blocked by browser or domain not authorized in Google Cloud Console.");
+            }
+        });
+    }
 
     function handleGoogleCredentialResponse(response) {
         var idToken = response.credential;
@@ -1671,17 +1709,38 @@ async function loadScheduledNotifications() {
         });
     }
 
-    // Make sure the Google client script is loaded in the head
-    if (!document.getElementById('gsi-script')) {
-        var script = document.createElement('script');
-        script.id = 'gsi-script';
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+    function renderGoogleButton(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        if (typeof google === 'undefined') {
+            setTimeout(function() { renderGoogleButton(containerId); }, 500);
+            return;
+        }
+        container.innerHTML = '';
+        google.accounts.id.renderButton(container, {
+            type: 'standard',
+            shape: 'rectangular',
+            theme: 'outline',
+            text: 'signin_with',
+            size: 'large',
+            width: container.parentElement.offsetWidth || 300
+        });
     }
 
-</script>
+    
+    // TRIGGER INIT
+    if (loadSession()) {
+        enterApp();
+    } else {
+        document.getElementById('authScreen').style.display = 'block';
+        renderGoogleButton('googleLoginWrapper');
+        renderGoogleButton('googleRegisterWrapper');
+        initGoogleOneTap();
+    }
+    
+    console.log('🚀 Sendly Frontend loaded (Professional)');
+    console.log('🏢 Henry Global Tech Industry');
+    </script>
 
 <div class="modal-overlay" id="editNotifModal">
     <div class="modal-box" style="max-width: 600px; text-align:left;">
