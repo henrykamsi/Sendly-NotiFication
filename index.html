@@ -802,7 +802,10 @@
 
     document.getElementById('settingsGenerateConfigBtn').onclick = function() {
         if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; }
-        var output = document.getElementById('settingsConfigOutput'); output.style.display = 'block'; document.getElementById('settingsConfigCode').textContent = 'Config generation moved to App details.';
+        var configWithKey = CONFIG_TEMPLATE.replace(/###API_KEY###/g, currentApiKey);
+        var output = document.getElementById('settingsConfigOutput'); 
+        output.style.display = 'block'; 
+        document.getElementById('settingsConfigCode').textContent = configWithKey;
         showResultModal(true, 'Config Generated', 'Your config code is ready.');
     };
 
@@ -869,7 +872,16 @@
 
     window.viewAppAnalytics = function(apiKey) { currentApiKey = apiKey; document.querySelector('[data-tab="tabStats"]').click(); loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); loadCountries(); showResultModal(true, 'Viewing Analytics', 'Analytics for selected app.'); };
 
-    window.getAppConfig = function(apiKey) { showResultModal(true, 'Config Generated', 'Your config code is ready in the App creation steps.'); document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; }); };
+    window.getAppConfig = function(apiKey) {
+        var configWithKey = CONFIG_TEMPLATE.replace(/###API_KEY###/g, apiKey);
+        var output = document.getElementById('settingsConfigOutput');
+        if(output) {
+            output.style.display = 'block';
+            document.getElementById('settingsConfigCode').textContent = configWithKey;
+        }
+        showResultModal(true, 'Config Generated', 'Your config code is ready. You can copy it from the Settings tab or the App creation steps.');
+        document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; });
+    };
 
     window.downloadAppSW = async function(apiKey) {
         try {
