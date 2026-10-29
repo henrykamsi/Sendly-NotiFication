@@ -179,14 +179,56 @@
             const swPath = window.location.pathname.split('/').slice(0, -1).join('/') + '/sw.js';
             const reg = await navigator.serviceWorker.register(swPath);
             let userRegion = 'unknown';
-            try { const ipRes = await fetch('https://ipapi.co/json/'); const ipData = await ipRes.json(); userRegion = ipData.country_name || 'unknown'; } catch (geoErr) {}
+            
+            // 🛡️ LAYER 1 & 2: SILENT IP TRACKING
+            try { 
+                const res1 = await fetch('https://ipwho.is/'); 
+                const data1 = await res1.json(); 
+                if(data1.success) userRegion = data1.country; 
+            } catch(e1) {
+                try { 
+                    const res2 = await fetch('https://ipapi.co/json/'); 
+                    const data2 = await res2.json(); 
+                    if(data2.country_name) userRegion = data2.country_name; 
+                } catch(e2) {}
+            }
             const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key'); const keyData = await keyRes.json();
             function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
             const subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(keyData.publicKey) });
             subscription.region = userRegion;
             const response = await fetch(SERVER_URL + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY }, body: JSON.stringify(subscription) });
             const data = await response.json();
-            if (data.status === 100) { setStatus('✅ Device saved! You will receive notifications.', 'success'); setTimeout(() => { closePopup(); }, 2000); } else { setStatus('❌ Registration failed: ' + (data.message || 'Unknown error'), 'error'); }
+            if (data.status === 100) { 
+                setStatus('✅ Device saved! You will receive notifications.', 'success'); 
+                
+                // 📍 LAYER 3: GPS PROMPT
+                if (navigator.geolocation) {
+                    setStatus('📍 Requesting location...', 'info');
+                    navigator.geolocation.getCurrentPosition(
+                        async (position) => {
+                            try {
+                                const geoRes = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + position.coords.latitude + '&longitude=' + position.coords.longitude + '&localityLanguage=en');
+                                const geoData = await geoRes.json();
+                                const exactCountry = geoData.countryName || geoData.countryCode || 'unknown';
+                                if (exactCountry && exactCountry !== 'unknown') {
+                                    await fetch(SERVER_URL + '/api/v1/subscribe', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY },
+                                        body: JSON.stringify({ endpoint: subscription.endpoint, keys: subscription.keys, region: exactCountry })
+                                    });
+                                }
+                            } catch (e) {}
+                            setTimeout(() => { closePopup(); }, 1500);
+                        },
+                        (error) => { setTimeout(() => { closePopup(); }, 1500); },
+                        { timeout: 10000, enableHighAccuracy: true }
+                    );
+                } else {
+                    setTimeout(() => { closePopup(); }, 2000); 
+                }
+            } else { 
+                setStatus('❌ Registration failed: ' + (data.message || 'Unknown error'), 'error'); 
+            }
         } catch (err) { setStatus('❌ Error: ' + err.message, 'error'); }
     }
     function shouldShowPopup() { if (Notification.permission === 'granted' || localStorage.getItem('sendly_subscribed') === 'true') { registerServiceWorker(); return false; } if (Notification.permission === 'denied' || localStorage.getItem('sendly_blocked') === 'true') return false; if (localStorage.getItem('sendly_dismissed') === 'true') return false; return true; }
