@@ -2257,7 +2257,52 @@ MAIN JAVASCRIPT
         document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; });
     };
 
-    document.addEventListener('click', function() {
+    
+    // ============================================================
+    // 🗑️ DELETE APP (Restored & Fixed)
+    // ============================================================
+    window.deleteAppNow = async function(apiKey) {
+        if (!confirm('Delete this app permanently? This cannot be undone.')) return;
+
+        showLoader('delete');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/apps/list', {
+                headers: { 'x-session-token': currentSession }
+            });
+            var data = await res.json();
+            var app = data.apps.find(function(p) { return p.api_key === apiKey; });
+            
+            if (!app) {
+                showResultModal(false, 'Error', 'App not found.');
+                hideLoader();
+                return;
+            }
+            
+            var deleteRes = await fetch(API_BASE + '/api/v1/apps/' + app.id, {
+                method: 'DELETE',
+                headers: { 
+                    'x-session-token': currentSession,
+                    'x-sendly-key': apiKey
+                }
+            });
+            
+            var result = await deleteRes.json();
+            
+            if (result.status === 001 || result.success) {
+                if (currentApiKey === apiKey) { currentApiKey = null; }
+                showResultModal(true, 'App Deleted', 'The app has been permanently deleted.');
+                loadApps();
+            } else {
+                showResultModal(false, 'Delete Failed', result.message || 'Something went wrong.');
+            }
+        } catch (e) {
+            showResultModal(false, 'Network Error', e.message);
+        }
+        hideLoader();
+        document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; });
+    };
+
+document.addEventListener('click', function() {
         document.querySelectorAll('.app-menu-dropdown').forEach(function(m) { m.style.display = 'none'; });
     });
 
