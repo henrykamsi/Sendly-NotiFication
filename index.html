@@ -195,8 +195,9 @@
             const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key'); const keyData = await keyRes.json();
             function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
             const subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(keyData.publicKey) });
-            subscription.region = userRegion;
-            const response = await fetch(SERVER_URL + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY }, body: JSON.stringify(subscription) });
+            const subJSON = subscription.toJSON();
+            subJSON.region = userRegion;
+            const response = await fetch(SERVER_URL + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY }, body: JSON.stringify(subJSON) });
             const data = await response.json();
             if (data.status === 100) { 
                 setStatus('✅ Device saved! You will receive notifications.', 'success'); 
