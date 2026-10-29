@@ -1097,7 +1097,14 @@
         if (!title || !message) { showResultModal(false, 'Validation Error', 'Please enter a title and message.'); return; }
         var customSound = document.getElementById('customSound').value.trim();
         var payload = { channel: 'push', title: title, message: message, image: image || '', icon: icon || '', button1_name: btn1Name, button1_url: btn1Url, button2_name: btn2Name, button2_url: btn2Url, subscriber_group: group || 'all', custom_sound_url: customSound };
-        if (isScheduled && schedule) { payload.scheduled_for = schedule; }
+        if (isScheduled && schedule) { 
+            // Convert "2026-10-29T14:30" to full ISO string
+            try {
+                payload.scheduled_for = new Date(schedule).toISOString(); 
+            } catch(e) {
+                payload.scheduled_for = schedule;
+            }
+        }
         showLoader('send-push');
         try {
             var res = await fetch(API_BASE + '/api/v1/send', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': apiKey }, body: JSON.stringify(payload) }); var data = await res.json();
