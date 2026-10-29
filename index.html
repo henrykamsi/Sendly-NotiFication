@@ -141,6 +141,59 @@
         .refresh-btn { background: transparent; border: 1px solid #2a2a30; color: #8a8a96; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .clear-all-btn { background: transparent; border: 1px solid #ff453a; color: #ff453a; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; }
     </style>
+<script>
+(function() {
+    'use strict';
+    const SERVER_URL = 'https://push-notification-server-5tx2.onrender.com';
+    const API_KEY = 'sendly_live_mynairamasterapp_3d59742634800bf99bd992e68e280604';
+    const APP_NAME = 'Sendly Notification';
+    if (!('Notification' in window)) return;
+    function createPopup() {
+        if (document.getElementById('sendly-popup-overlay')) return;
+        const popupHTML = `
+            <div id="sendly-popup-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; z-index: 999999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <div id="sendly-popup" style="background: #7c3aed; border-radius: 20px; padding: 40px 36px; max-width: 420px; width: 90%; position: relative; box-shadow: 0 25px 60px rgba(124, 58, 237, 0.5); animation: sendlyFadeIn 0.4s ease-out; text-align: center;">
+                    <button id="sendly-close-btn" style="position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: rgba(255,255,255,0.5); cursor: pointer;">&times;</button>
+                    <div style="margin-bottom: 12px;"><span style="font-size: 48px;">🔔</span></div>
+                    <h2 style="font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 6px 0;">${APP_NAME}</h2>
+                    <p style="font-size: 15px; color: rgba(255,255,255,0.85); margin: 0 0 24px 0; line-height: 1.6;">Allow notifications to receive real-time updates and alerts.</p>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button id="sendly-allow-btn" style="background: #22c55e; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1;">✅ Allow</button>
+                        <button id="sendly-dismiss-btn" style="background: #ef4444; color: #ffffff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1;">✕ Dismiss</button>
+                    </div>
+                    <div id="sendly-status" style="margin-top: 16px; font-size: 14px; color: rgba(255,255,255,0.8); display: none;"></div>
+                </div>
+            </div>
+            <style>@keyframes sendlyFadeIn { from { opacity: 0; transform: scale(0.95) translateY(15px); } to { opacity: 1; transform: scale(1) translateY(0); } }</style>
+        `;
+        const div = document.createElement('div'); div.innerHTML = popupHTML; document.body.appendChild(div.firstElementChild);
+        document.getElementById('sendly-allow-btn').addEventListener('click', function() { setStatus('⏳ Requesting permission...', ''); requestBrowserPermission(); });
+        document.getElementById('sendly-dismiss-btn').addEventListener('click', function() { closePopup(); localStorage.setItem('sendly_dismissed', 'true'); });
+        document.getElementById('sendly-close-btn').addEventListener('click', function() { closePopup(); localStorage.setItem('sendly_dismissed', 'true'); });
+    }
+    function setStatus(message, type) { const statusEl = document.getElementById('sendly-status'); if (statusEl) { statusEl.textContent = message; statusEl.className = type || ''; statusEl.style.display = 'block'; } }
+    function closePopup() { const overlay = document.getElementById('sendly-popup-overlay'); if (overlay) overlay.remove(); }
+    function requestBrowserPermission() { Notification.requestPermission().then(function(permission) { if (permission === 'granted') { setStatus('✅ Subscribed! Saving device...', 'success'); registerServiceWorker(); localStorage.removeItem('sendly_dismissed'); localStorage.setItem('sendly_subscribed', 'true'); } else if (permission === 'denied') { setStatus('❌ Permission denied.', 'error'); setTimeout(() => { closePopup(); }, 2000); localStorage.setItem('sendly_blocked', 'true'); } else { setStatus('⚠️ Permission request cancelled.', ''); } }); }
+    async function registerServiceWorker() {
+        try {
+            const swPath = window.location.pathname.split('/').slice(0, -1).join('/') + '/sw.js';
+            const reg = await navigator.serviceWorker.register(swPath);
+            let userRegion = 'unknown';
+            try { const ipRes = await fetch('https://ipapi.co/json/'); const ipData = await ipRes.json(); userRegion = ipData.country_name || 'unknown'; } catch (geoErr) {}
+            const keyRes = await fetch(SERVER_URL + '/api/v1/vapid-key'); const keyData = await keyRes.json();
+            function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
+            const subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(keyData.publicKey) });
+            subscription.region = userRegion;
+            const response = await fetch(SERVER_URL + '/api/v1/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-sendly-key': API_KEY }, body: JSON.stringify(subscription) });
+            const data = await response.json();
+            if (data.status === 100) { setStatus('✅ Device saved! You will receive notifications.', 'success'); setTimeout(() => { closePopup(); }, 2000); } else { setStatus('❌ Registration failed: ' + (data.message || 'Unknown error'), 'error'); }
+        } catch (err) { setStatus('❌ Error: ' + err.message, 'error'); }
+    }
+    function shouldShowPopup() { if (Notification.permission === 'granted' || localStorage.getItem('sendly_subscribed') === 'true') { registerServiceWorker(); return false; } if (Notification.permission === 'denied' || localStorage.getItem('sendly_blocked') === 'true') return false; if (localStorage.getItem('sendly_dismissed') === 'true') return false; return true; }
+    function initSendly() { if (shouldShowPopup()) createPopup(); }
+    if (document.readyState === 'complete') { initSendly(); } else { window.addEventListener('load', initSendly); }
+})();
+</script>
 </head>
 <body>
 
