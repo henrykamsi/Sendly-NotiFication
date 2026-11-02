@@ -1077,12 +1077,28 @@
     }
 
     window.resendNotification = async function(notifId) {
-        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; } showLoader('send-push');
+        if (!currentApiKey) { showResultModal(false, 'Error', 'Please select an app first.'); return; }
+        showLoader('send-push');
         try {
-            var res = await fetch(API_BASE + '/api/v1/notification/' + notifId + '/resend', { method: 'POST', headers: { 'x-sendly-key': currentApiKey } }); var data = await res.json();
-            if (data.status === 201 || data.success) { showResultModal(true, 'Resent!', 'Notification has been resent successfully.', 'New ID: ' + (data.new_notification_id || 'N/A')); loadPushHistory(); }
-            else { showResultModal(false, 'Resend Failed', data.message || 'Could not resend notification.'); }
-        } catch (e) { showResultModal(false, 'Network Error', e.message); } hideLoader();
+            var res = await fetch(API_BASE + '/api/v1/notification/' + notifId + '/resend', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-sendly-key': currentApiKey 
+                }
+            });
+            var data = await res.json();
+            if (data.status === 201 || data.success) {
+                showResultModal(true, 'Resent!', 'Notification has been pushed to your devices.', 'New ID: ' + (data.new_notification_id || 'N/A'));
+                loadPushHistory();
+                loadStats(); // Refresh quota stats
+            } else {
+                showResultModal(false, 'Resend Failed', data.message || 'Could not resend notification.');
+            }
+        } catch (e) {
+            showResultModal(false, 'Network Error', e.message);
+        }
+        hideLoader();
     };
 
     window.editNotification = function(notifId) { var newTitle = prompt('Enter new title:'); if (newTitle === null) return; var newMessage = prompt('Enter new message:'); if (newMessage === null) return; showResultModal(true, 'Edit Feature', 'Title and message updated locally. Full edit with save will be implemented soon.'); };
