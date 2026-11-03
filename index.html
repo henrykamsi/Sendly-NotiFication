@@ -710,46 +710,11 @@ class="app-container" id="appContainer">
     // GOOGLE ONE TAP (EXACT WORKING LOGIC)
     // ============================================================
     
-    document.getElementById('showLogin').onclick = function() { document.getElementById('registerForm').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); };
+    
 
     
 
-    document.getElementById('loginBtn').onclick = async () => {
-        var email = document.getElementById('loginEmail').value.trim(); var password = document.getElementById('loginPassword').value.trim();
-        if (!email || !password) return showResultModal(false, 'Error', 'Please enter email and password.');
-        showLoader('Signing in...');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-            var data = await res.json();
-            hideLoader();
-            
-            if (data.status === 200) { 
-                currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp(); showResultModal(true, 'Welcome Back!', 'Logged in successfully.'); 
-            } else if (data.status === 202 && data.pending) {
-                // New device detected - show pending modal
-                document.getElementById('pendingLoginModal').classList.add('show');
-                document.getElementById('pendingWaiting').style.display = 'block';
-                document.getElementById('pendingRecovery').style.display = 'none';
-                document.getElementById('pendingLocked').style.display = 'none';
-                
-                // Start 30 second timer
-                let timeLeft = 30;
-                const timerText = document.getElementById('pendingTimerText');
-                const timerInterval = setInterval(() => {
-                    timeLeft--;
-                    timerText.textContent = 'Waiting for approval... (' + timeLeft + 's)';
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        document.getElementById('pendingWaiting').style.display = 'none';
-                        document.getElementById('pendingRecovery').style.display = 'block';
-                    }
-                }, 1000);
-                
-            } else { 
-                showResultModal(false, 'Login Failed', data.message || 'Invalid credentials.'); 
-            }
-        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
-    };
+    
 
     document.getElementById('loginPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('loginBtn').click(); } });
     document.getElementById('regPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('registerBtn').click(); } });
@@ -1478,71 +1443,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-    document.getElementById('showRegister').onclick = function() {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('registerForm').style.display = 'block';
-    };
-    document.getElementById('showLogin').onclick = function() {
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('loginForm').style.display = 'block';
-    };
+    
+    
 
-    document.getElementById('loginBtn').onclick = async function() {
-        var email = document.getElementById('loginEmail').value.trim();
-        var password = document.getElementById('loginPassword').value.trim();
-        if (!email || !password) { showResultModal(false, 'Error', 'Please enter email and password.'); return; }
-        showLoader('Signing in...');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-            var data = await res.json();
-            hideLoader();
-            if (data.status === 200) {
-                currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
-                showResultModal(true, 'Welcome Back!', 'Logged in successfully.');
-            } else if (data.status === 202 && data.pending) {
-                document.getElementById('pendingLoginModal').classList.add('show');
-                document.getElementById('pendingWaiting').style.display = 'block';
-                document.getElementById('pendingRecovery').style.display = 'none';
-                document.getElementById('pendingLocked').style.display = 'none';
-                let timeLeft = 30;
-                const timerText = document.getElementById('pendingTimerText');
-                const timerInterval = setInterval(() => {
-                    timeLeft--;
-                    timerText.textContent = 'Waiting for approval... (' + timeLeft + 's)';
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        document.getElementById('pendingWaiting').style.display = 'none';
-                        document.getElementById('pendingRecovery').style.display = 'block';
-                    }
-                }, 1000);
-            } else {
-                showResultModal(false, 'Login Failed', data.message || 'Invalid credentials.');
-            }
-        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
-    };
+    
 
-    document.getElementById('registerBtn').onclick = async function() {
-        var name = document.getElementById('regName').value.trim();
-        var surname = document.getElementById('regSurname').value.trim();
-        var email = document.getElementById('regEmail').value.trim();
-        var password = document.getElementById('regPassword').value.trim();
-        var confirm = document.getElementById('regConfirmPassword').value.trim();
-        if (!name || !surname || !email || !password || !confirm) { showResultModal(false, 'Error', 'Please fill all fields.'); return; }
-        if (password !== confirm) { showResultModal(false, 'Error', 'Passwords do not match.'); return; }
-        showLoader('Creating account...');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, surname, email, password, traffic: '10-50' }) });
-            var data = await res.json();
-            hideLoader();
-            if (data.status === 201) {
-                showResultModal(true, 'Account Created!', 'Please sign in now.');
-                document.getElementById('registerForm').style.display = 'none';
-                document.getElementById('loginForm').style.display = 'block';
-            } else {
-                showResultModal(false, 'Registration Failed', data.message || 'Error');
-            }
-        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
-    };
+    
 
 </script>
 
