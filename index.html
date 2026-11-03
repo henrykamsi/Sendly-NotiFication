@@ -1599,6 +1599,60 @@
         }
     });
 
+
+    // ============================================================
+    // GOOGLE AUTHENTICATION (RESTORED)
+    // ============================================================
+    window.triggerGoogleAuth = function() {
+        if (typeof google === 'undefined') { 
+            showResultModal(false, 'Error', 'Google API is still loading. Please refresh and try again.'); 
+            return; 
+        }
+        google.accounts.id.initialize({ 
+            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
+            callback: handleGoogleResponse 
+        });
+        google.accounts.id.prompt(); // Shows the popup
+    };
+
+    window.handleGoogleResponse = function(response) {
+        showLoader('Signing in with Google...');
+        fetch(API_BASE + '/api/v1/auth/google', {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ token: response.credential })
+        }).then(res => res.json()).then(data => {
+            hideLoader();
+            if (data.status === 200 || data.status === 201) { 
+                currentUser = data; 
+                currentSession = data.session_token; 
+                saveSession(data, data.session_token); 
+                enterApp(); 
+                showResultModal(true, 'Welcome!', 'Signed in with Google.'); 
+            } else { 
+                showResultModal(false, 'Failed', data.message || 'Could not sign in.'); 
+            }
+        }).catch(err => { 
+            hideLoader(); 
+            showResultModal(false, 'Error', err.message); 
+        });
+    };
+
+    // Auto-trigger Google One Tap on page load
+    window.addEventListener('load', function() {
+        if (typeof loadSession === 'function' && !loadSession()) {
+            setTimeout(function() {
+                if (typeof google !== 'undefined') {
+                    google.accounts.id.initialize({ 
+                        client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
+                        callback: handleGoogleResponse 
+                    });
+                    google.accounts.id.prompt();
+                }
+            }, 1500);
+        }
+    });
+
 </script>
 
 <div class="modal-overlay" id="pendingLoginModal">
