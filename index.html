@@ -221,7 +221,15 @@
             <label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Password</label>
             <input type="password" id="loginPassword" placeholder="Enter your password" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" />
         </div>
-        <button id="loginBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #00f2fe, #4facfe); border-radius: 10px; font-weight: 600; font-size: 15px; color: #000; cursor: pointer; border: none;">Sign In</button>
+        <button id="loginBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #00f2fe, #4facfe); border: none; border-radius: 12px; font-weight: 700; font-size: 16px; color: #000; cursor: pointer; margin-bottom: 16px;">Sign In</button>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin: 16px 0; color: #6a6a76; font-size: 13px;">
+            <div style="flex: 1; height: 1px; background: #2a2a30;"></div>
+            or
+            <div style="flex: 1; height: 1px; background: #2a2a30;"></div>
+        </div>
+
+        <div id="googleBtnContainer" style="width: 100%; display: flex; justify-content: center; margin-bottom: 20px;"></div>
         <div style="text-align: center; margin-top: 16px; font-size: 14px; color: #6a6a76;">
             Don't have an account? <a id="showRegister" style="color: #00f2fe; font-weight: 600; cursor: pointer;">Create one</a>
         </div>
@@ -722,12 +730,12 @@
 
     function enterApp() {
         document.getElementById('authScreen').style.display = 'none'; document.getElementById('appContainer').classList.add('active'); document.getElementById('userBadge').textContent = '👤 ' + (currentUser.name || 'User');
-        loadApps(); loadStats(); loadPushHistory(); loadCrackSignal(); loadSubscriberTokens(); loadPlans(); loadWebhooks(); loadProfile(); loadSecurityStatus(); loadScheduledNotifications(); updateScheduledCount(); showFreePlanBanner(); renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper');
+        loadApps(); loadStats(); loadPushHistory(); loadCrackSignal(); loadSubscriberTokens(); loadPlans(); loadWebhooks(); loadProfile(); loadSecurityStatus(); loadScheduledNotifications(); updateScheduledCount(); showFreePlanBanner();  
     }
 
     var logout = function() {
         clearSession(); currentUser = null; currentSession = null;
-        document.getElementById('authScreen').style.display = 'block'; document.getElementById('appContainer').classList.remove('active'); hideFreePlanBanner(); initGoogleOneTap();
+        document.getElementById('authScreen').style.display = 'block'; document.getElementById('appContainer').classList.remove('active'); hideFreePlanBanner(); 
     };
     document.getElementById('logoutBtn').onclick = logout; document.getElementById('settingsLogoutBtn').onclick = logout;
 
@@ -1655,6 +1663,59 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('confirmRecoveryCode').value = '';
     };
     
+
+    window.googleLoginNow = function() {
+        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google is still loading. Please wait 2 seconds.'); return; }
+        google.accounts.id.initialize({
+            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
+            callback: function(response) {
+                showLoader('Signing in with Google...');
+                fetch(API_BASE + '/api/v1/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.credential })
+                }).then(res => res.json()).then(data => {
+                    hideLoader();
+                    if (data.status === 200 || data.status === 201) {
+                        currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
+                        showResultModal(true, 'Welcome!', 'Signed in with Google.');
+                    } else { showResultModal(false, 'Failed', data.message || 'Could not sign in.'); }
+                }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
+            }
+        });
+        google.accounts.id.prompt();
+    };
+
+    function renderGoogleBtn() {
+        var container = document.getElementById('googleBtnContainer');
+        if (!container) { console.log('googleBtnContainer not found'); return; }
+        if (typeof google === 'undefined') { setTimeout(renderGoogleBtn, 500); return; }
+        container.innerHTML = '';
+        google.accounts.id.renderButton(container, {
+            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: 300
+        });
+        console.log('✅ Google button rendered.');
+    }
+
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            if (typeof google !== 'undefined' && !localStorage.getItem('sendly_session')) {
+                google.accounts.id.initialize({
+                    client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
+                    callback: function(response) {
+                        showLoader('Signing in with Google...');
+                        fetch(API_BASE + '/api/v1/auth/google', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ token: response.credential })
+                        }).then(r => r.json()).then(d => { hideLoader(); if (d.session_token) { currentUser=d; currentSession=d.session_token; saveSession(d, d.session_token); enterApp(); } });
+                    }
+                });
+                google.accounts.id.prompt();
+                renderGoogleBtn();
+            }
+        }, 1500);
+    });
+
 </script>
 
 <div class="modal-overlay" id="pendingLoginModal">
