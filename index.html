@@ -1626,6 +1626,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
     }
 
+
+    document.getElementById('saveRecoveryBtn').onclick = async function() {
+        var c1 = document.getElementById('newRecoveryCode').value.trim();
+        var c2 = document.getElementById('confirmRecoveryCode').value.trim();
+        var err = document.getElementById('recoverySetupError');
+        if (c1.length !== 6 || !/^[0-9]+$/.test(c1)) { err.textContent = 'Must be 6 numbers.'; err.style.display='block'; return; }
+        if (c1 !== c2) { err.textContent = 'Codes do not match.'; err.style.display='block'; return; }
+        showLoader('Saving...');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/security/enable', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession }, body: JSON.stringify({ recovery_code: c1 }) });
+            var data = await res.json();
+            hideLoader();
+            if (data.success) {
+                document.getElementById('setupRecoveryModal').classList.remove('show');
+                document.getElementById('securityStatusText').textContent = 'Enabled';
+                document.getElementById('securityStatusText').style.color = '#34c759';
+                document.getElementById('toggleSecurityBtn').textContent = 'Disable';
+                document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
+                showResultModal(true, 'Enabled!', 'Login alerts are now active.');
+            } else { err.textContent = data.message || 'Failed.'; err.style.display='block'; }
+        } catch(e) { hideLoader(); err.textContent = 'Network error.'; err.style.display='block'; }
+    };
+    document.getElementById('cancelRecoveryBtn').onclick = function() {
+        document.getElementById('setupRecoveryModal').classList.remove('show');
+        document.getElementById('recoverySetupError').style.display = 'none';
+        document.getElementById('newRecoveryCode').value = '';
+        document.getElementById('confirmRecoveryCode').value = '';
+    };
+    
 </script>
 
 <div class="modal-overlay" id="pendingLoginModal">
