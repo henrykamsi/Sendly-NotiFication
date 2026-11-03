@@ -173,6 +173,7 @@
             .app-menu-dropdown { min-width: 160px; }
         }
     </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -1449,6 +1450,181 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
     
+
+
+    // ============================================================
+    // CLEAN AUTH HANDLERS
+    // ============================================================
+    
+    // Show/Hide register form
+    document.getElementById('showRegister').onclick = function() {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+    };
+    document.getElementById('showLogin').onclick = function() {
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+    };
+    
+    // Login handler
+    document.getElementById('loginBtn').onclick = async function() {
+        var email = document.getElementById('loginEmail').value.trim();
+        var password = document.getElementById('loginPassword').value.trim();
+        if (!email || !password) { showResultModal(false, 'Error', 'Please enter email and password.'); return; }
+        showLoader('Signing in...');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+            var data = await res.json();
+            hideLoader();
+            if (data.status === 200) {
+                currentUser = data;
+                currentSession = data.session_token;
+                saveSession(data, data.session_token);
+                enterApp();
+                showResultModal(true, 'Welcome Back!', 'Logged in successfully.');
+            } else if (data.status === 202 && data.pending) {
+                document.getElementById('pendingLoginModal').classList.add('show');
+                document.getElementById('pendingWaiting').style.display = 'block';
+                document.getElementById('pendingRecovery').style.display = 'none';
+                document.getElementById('pendingLocked').style.display = 'none';
+                let timeLeft = 30;
+                const timerText = document.getElementById('pendingTimerText');
+                const timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerText.textContent = 'Waiting for approval... (' + timeLeft + 's)';
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        document.getElementById('pendingWaiting').style.display = 'none';
+                        document.getElementById('pendingRecovery').style.display = 'block';
+                    }
+                }, 1000);
+            } else {
+                showResultModal(false, 'Login Failed', data.message || 'Invalid credentials.');
+            }
+        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
+    };
+    
+    // Register handler
+    document.getElementById('registerBtn').onclick = async function() {
+        var name = document.getElementById('regName').value.trim();
+        var surname = document.getElementById('regSurname').value.trim();
+        var email = document.getElementById('regEmail').value.trim();
+        var password = document.getElementById('regPassword').value.trim();
+        var confirm = document.getElementById('regConfirmPassword').value.trim();
+        if (!name || !surname || !email || !password || !confirm) { showResultModal(false, 'Error', 'Please fill all fields.'); return; }
+        if (password !== confirm) { showResultModal(false, 'Error', 'Passwords do not match.'); return; }
+        showLoader('Creating account...');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, surname, email, password, traffic: '10-50' }) });
+            var data = await res.json();
+            hideLoader();
+            if (data.status === 201) {
+                showResultModal(true, 'Account Created!', 'Please sign in now.');
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            } else {
+                showResultModal(false, 'Registration Failed', data.message || 'Error');
+            }
+        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
+    };
+
+    // ============================================================
+    // GOOGLE SIGN IN
+    // ============================================================
+    window.googleLoginNow = function() {
+        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google is still loading. Please wait 2 seconds.'); return; }
+        google.accounts.id.initialize({
+            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
+            callback: function(response) {
+                showLoader('Signing in with Google...');
+                fetch(API_BASE + '/api/v1/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.credential })
+                }).then(res => res.json()).then(data => {
+                    hideLoader();
+                    if (data.status === 200 || data.status === 201) {
+                        currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
+                        showResultModal(true, 'Welcome!', 'Signed in with Google.');
+                    } else { showResultModal(false, 'Failed', data.message || 'Could not sign in.'); }
+                }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
+            }
+        });
+        google.accounts.id.prompt();
+    };
+
+    // Render the Google button
+    function renderGoogleBtn() {
+        var container = document.getElementById('googleBtnContainer');
+        if (!container) return;
+        if (typeof google === 'undefined') { setTimeout(renderGoogleBtn, 500); return; }
+        container.innerHTML = '';
+        google.accounts.id.renderButton(container, {
+            type: 'standard',
+            shape: 'rectangular',
+            theme: 'outline',
+            text: 'signin_with',
+            size: 'large',
+            width: 300
+        });
+    }
+
+    // ============================================================
+    // SAVE / CANCEL SECURITY CODE
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        var saveBtn = document.getElementById('saveRecoveryBtn');
+        if (saveBtn) {
+            saveBtn.onclick = async function() {
+                var code1 = document.getElementById('newRecoveryCode').value.trim();
+                var code2 = document.getElementById('confirmRecoveryCode').value.trim();
+                var errEl = document.getElementById('recoverySetupError');
+                if (code1.length !== 6 || !/^[0-9]+$/.test(code1)) { errEl.textContent = 'Code must be 6 numbers.'; errEl.style.display = 'block'; return; }
+                if (code1 !== code2) { errEl.textContent = 'Codes do not match.'; errEl.style.display = 'block'; return; }
+                showLoader('Saving...');
+                try {
+                    var res = await fetch(API_BASE + '/api/v1/security/enable', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession }, body: JSON.stringify({ recovery_code: code1 }) });
+                    var data = await res.json();
+                    hideLoader();
+                    if (data.success) {
+                        document.getElementById('setupRecoveryModal').classList.remove('show');
+                        document.getElementById('securityStatusText').textContent = 'Enabled';
+                        document.getElementById('securityStatusText').style.color = '#34c759';
+                        document.getElementById('toggleSecurityBtn').textContent = 'Disable';
+                        document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
+                        showResultModal(true, 'Enabled!', 'Login alerts are now active.');
+                    } else { errEl.textContent = data.message || 'Failed.'; errEl.style.display = 'block'; }
+                } catch(e) { hideLoader(); errEl.textContent = 'Network error.'; errEl.style.display = 'block'; }
+            };
+        }
+        var cancelBtn = document.getElementById('cancelRecoveryBtn');
+        if (cancelBtn) {
+            cancelBtn.onclick = function() {
+                document.getElementById('setupRecoveryModal').classList.remove('show');
+                document.getElementById('recoverySetupError').style.display = 'none';
+                document.getElementById('newRecoveryCode').value = '';
+                document.getElementById('confirmRecoveryCode').value = '';
+            };
+        }
+    });
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    if (loadSession()) { enterApp(); } else { 
+        document.getElementById('authScreen').style.display = 'flex'; 
+        setTimeout(function() {
+            if (typeof google !== 'undefined') {
+                google.accounts.id.initialize({ client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', callback: function(response) {
+                    showLoader('Signing in...');
+                    fetch(API_BASE + '/api/v1/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: response.credential }) })
+                    .then(r => r.json()).then(d => { hideLoader(); if (d.session_token) { currentUser=d; currentSession=d.session_token; saveSession(d, d.session_token); enterApp(); } });
+                }});
+                google.accounts.id.prompt();
+                renderGoogleBtn();
+            }
+        }, 1500);
+    }
 
 </script>
 
