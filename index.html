@@ -501,6 +501,15 @@
             <div class="settings-item"><div class="left"><span class="title">Plan</span><span class="desc" id="profilePlan">Free</span></div></div>
         </div>
         <div class="card">
+            <h3>🔒 Security Alerts</h3>
+            <p style="font-size:13px; color:#6a6a76; margin-bottom:12px;">Protect your account from unauthorized logins. When enabled, you will be asked to approve logins from new devices.</p>
+            <div class="settings-item" style="border:none; padding: 8px 0;">
+                <div class="left"><span class="title">Enable Login Alerts</span><span class="desc" id="securityStatusText">Disabled</span></div>
+                <button class="btn btn-secondary btn-sm" id="toggleSecurityBtn">Enable</button>
+            </div>
+        </div>
+
+        <div class="card">
             <h3>📊 Upgrade Plan</h3>
             <div id="plansDisplay">
                 <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #22222a;"><span><strong>Free</strong> – ₦0</span><span style="color:#00f2fe;">Current Plan</span></div>
@@ -820,7 +829,7 @@
 
     function enterApp() {
         document.getElementById('authScreen').style.display = 'none'; document.getElementById('appContainer').classList.add('active'); document.getElementById('userBadge').textContent = '👤 ' + (currentUser.name || 'User');
-        loadApps(); loadStats(); loadPushHistory(); loadCrackSignal(); loadSubscriberTokens(); loadPlans(); loadWebhooks(); loadProfile(); loadScheduledNotifications(); updateScheduledCount(); showFreePlanBanner(); renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper');
+        loadApps(); loadStats(); loadPushHistory(); loadCrackSignal(); loadSubscriberTokens(); loadPlans(); loadWebhooks(); loadProfile(); loadSecurityStatus(); loadScheduledNotifications(); updateScheduledCount(); showFreePlanBanner(); renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper');
     }
 
     var logout = function() {
@@ -1324,6 +1333,99 @@
         document.getElementById('scheduledListContainer').style.display = 'none'; document.getElementById('sendFormContainer').style.display = 'block'; document.getElementById('pushHistoryContainer').style.display = 'block'; document.getElementById('showScheduledBtn').classList.remove('btn-primary'); document.getElementById('showScheduledBtn').classList.add('btn-secondary');
     };
 
+    
+    // ============================================================
+    // SECURITY TOGGLE LOGIC
+    // ============================================================
+    document.getElementById('toggleSecurityBtn').onclick = function() {
+        var status = document.getElementById('securityStatusText').textContent;
+        if (status === 'Enabled') {
+            // Disable
+            if (confirm('Are you sure you want to disable Login Alerts? This will make your account less secure.')) {
+                fetch(API_BASE + '/api/v1/security/disable', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession } })
+                .then(r => r.json()).then(d => {
+                    if (d.success) {
+                        document.getElementById('securityStatusText').textContent = 'Disabled';
+                        document.getElementById('securityStatusText').style.color = '#6a6a76';
+                        document.getElementById('toggleSecurityBtn').textContent = 'Enable';
+                        document.getElementById('toggleSecurityBtn').className = 'btn btn-secondary btn-sm';
+                        showResultModal(true, 'Disabled', 'Login alerts have been turned off.');
+                    }
+                });
+            }
+        } else {
+            // Enable - show modal
+            document.getElementById('setupRecoveryModal').classList.add('show');
+            document.getElementById('newRecoveryCode').value = '';
+            document.getElementById('confirmRecoveryCode').value = '';
+            document.getElementById('recoverySetupError').style.display = 'none';
+        }
+    };
+
+    document.getElementById('cancelRecoveryBtn').onclick = function() {
+        document.getElementById('setupRecoveryModal').classList.remove('show');
+    };
+
+    document.getElementById('saveRecoveryBtn').onclick = async function() {
+        var code1 = document.getElementById('newRecoveryCode').value.trim();
+        var code2 = document.getElementById('confirmRecoveryCode').value.trim();
+        var errEl = document.getElementById('recoverySetupError');
+        
+        if (code1.length !== 6 || !/^\d+$/.test(code1)) {
+            errEl.textContent = 'Code must be exactly 6 numbers.';
+            errEl.style.display = 'block';
+            return;
+        }
+        if (code1 !== code2) {
+            errEl.textContent = 'Codes do not match.';
+            errEl.style.display = 'block';
+            return;
+        }
+        
+        try {
+            var res = await fetch(API_BASE + '/api/v1/security/enable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession },
+                body: JSON.stringify({ recovery_code: code1 })
+            });
+            var data = await res.json();
+            if (data.success) {
+                document.getElementById('setupRecoveryModal').classList.remove('show');
+                document.getElementById('securityStatusText').textContent = 'Enabled';
+                document.getElementById('securityStatusText').style.color = '#34c759';
+                document.getElementById('toggleSecurityBtn').textContent = 'Disable';
+                document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
+                showResultModal(true, 'Enabled!', 'Login alerts are now active. You will be notified of new device logins.');
+            } else {
+                errEl.textContent = data.message || 'Failed to enable.';
+                errEl.style.display = 'block';
+            }
+        } catch(e) {
+            errEl.textContent = 'Network error.';
+            errEl.style.display = 'block';
+        }
+    };
+
+    // Load security status when entering app
+    async function loadSecurityStatus() {
+        if (!currentSession) return;
+        try {
+            var res = await fetch(API_BASE + '/api/v1/security/status', { headers: { 'x-session-token': currentSession } });
+            var data = await res.json();
+            if (data.enabled) {
+                document.getElementById('securityStatusText').textContent = 'Enabled';
+                document.getElementById('securityStatusText').style.color = '#34c759';
+                document.getElementById('toggleSecurityBtn').textContent = 'Disable';
+                document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
+            } else {
+                document.getElementById('securityStatusText').textContent = 'Disabled';
+                document.getElementById('securityStatusText').style.color = '#6a6a76';
+                document.getElementById('toggleSecurityBtn').textContent = 'Enable';
+                document.getElementById('toggleSecurityBtn').className = 'btn btn-secondary btn-sm';
+            }
+        } catch(e) {}
+    }
+
     if (loadSession()) { enterApp(); } else { document.getElementById('authScreen').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper'); initGoogleOneTap(); }
 </script>
 
@@ -1347,6 +1449,19 @@
             <p style="color:#6a6a76; font-size: 14px;">Too many wrong attempts. Try again in:</p>
             <p style="font-size: 32px; font-weight: 800; color: #ff453a; margin-top: 12px;" id="lockTimerText">01:00:00</p>
         </div>
+    </div>
+</div>
+
+
+<div class="modal-overlay" id="setupRecoveryModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <h2 style="color:#00f2fe; margin-bottom: 8px;">🔑 Create Recovery Code</h2>
+        <p style="color:#6a6a76; font-size: 14px;">Enter a 6-digit code that only you know. You will use this to approve logins from new devices if you lose your phone.</p>
+        <input type="text" id="newRecoveryCode" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin: 16px 0;" />
+        <input type="text" id="confirmRecoveryCode" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin-bottom: 16px;" />
+        <div id="recoverySetupError" style="color: #ff453a; font-size: 13px; margin-bottom: 10px; display: none;"></div>
+        <button class="btn btn-primary btn-block" id="saveRecoveryBtn">💾 Save Code & Enable</button>
+        <button class="btn btn-secondary btn-block" id="cancelRecoveryBtn" style="margin-top: 8px;">Cancel</button>
     </div>
 </div>
 
