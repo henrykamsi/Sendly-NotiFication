@@ -1330,49 +1330,9 @@
         }
     };
 
-    document.getElementById('cancelRecoveryBtn').onclick = function() {
-        document.getElementById('setupRecoveryModal').classList.remove('show');
-    };
+    
 
-    document.getElementById('saveRecoveryBtn').onclick = async function() {
-        var code1 = document.getElementById('newRecoveryCode').value.trim();
-        var code2 = document.getElementById('confirmRecoveryCode').value.trim();
-        var errEl = document.getElementById('recoverySetupError');
-        
-        if (code1.length !== 6 || !/^\d+$/.test(code1)) {
-            errEl.textContent = 'Code must be exactly 6 numbers.';
-            errEl.style.display = 'block';
-            return;
-        }
-        if (code1 !== code2) {
-            errEl.textContent = 'Codes do not match.';
-            errEl.style.display = 'block';
-            return;
-        }
-        
-        try {
-            var res = await fetch(API_BASE + '/api/v1/security/enable', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession },
-                body: JSON.stringify({ recovery_code: code1 })
-            });
-            var data = await res.json();
-            if (data.success) {
-                document.getElementById('setupRecoveryModal').classList.remove('show');
-                document.getElementById('securityStatusText').textContent = 'Enabled';
-                document.getElementById('securityStatusText').style.color = '#34c759';
-                document.getElementById('toggleSecurityBtn').textContent = 'Disable';
-                document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
-                showResultModal(true, 'Enabled!', 'Login alerts are now active. You will be notified of new device logins.');
-            } else {
-                errEl.textContent = data.message || 'Failed to enable.';
-                errEl.style.display = 'block';
-            }
-        } catch(e) {
-            errEl.textContent = 'Network error.';
-            errEl.style.display = 'block';
-        }
-    };
+    
 
     // Load security status when entering app
     async function loadSecurityStatus() {
@@ -1743,6 +1703,63 @@
             };
         }
     });
+
+
+    // ============================================================
+    // SAVE & CANCEL RECOVERY CODE (DIRECT HANDLERS)
+    // ============================================================
+    document.getElementById('saveRecoveryBtn').onclick = async function() {
+        var input1 = document.getElementById('newRecoveryCode');
+        var input2 = document.getElementById('confirmRecoveryCode');
+        var errEl = document.getElementById('recoverySetupError');
+        
+        var code1 = input1.value.trim();
+        var code2 = input2.value.trim();
+        
+        if (code1.length !== 6 || !/^[0-9]+$/.test(code1)) {
+            errEl.textContent = 'Code must be exactly 6 numbers.';
+            errEl.style.display = 'block';
+            return;
+        }
+        if (code1 !== code2) {
+            errEl.textContent = 'Codes do not match.';
+            errEl.style.display = 'block';
+            return;
+        }
+        
+        showLoader('Saving...');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/security/enable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession },
+                body: JSON.stringify({ recovery_code: code1 })
+            });
+            var data = await res.json();
+            hideLoader();
+            if (data.success) {
+                document.getElementById('setupRecoveryModal').classList.remove('show');
+                document.getElementById('securityStatusText').textContent = 'Enabled';
+                document.getElementById('securityStatusText').style.color = '#34c759';
+                document.getElementById('toggleSecurityBtn').textContent = 'Disable';
+                document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
+                showResultModal(true, 'Enabled!', 'Login alerts are now active.');
+            } else {
+                errEl.textContent = data.message || 'Failed to enable.';
+                errEl.style.display = 'block';
+            }
+        } catch(e) {
+            hideLoader();
+            errEl.textContent = 'Network error.';
+            errEl.style.display = 'block';
+        }
+    };
+
+    document.getElementById('cancelRecoveryBtn').onclick = function() {
+        document.getElementById('setupRecoveryModal').classList.remove('show');
+        document.getElementById('recoverySetupError').style.display = 'none';
+        document.getElementById('newRecoveryCode').value = '';
+        document.getElementById('confirmRecoveryCode').value = '';
+    };
 
 </script>
 
