@@ -223,7 +223,10 @@
         </div>
         <button class="btn-primary" id="loginBtn">Sign In</button>
         <div class="auth-divider">or</div>
-        <div class="google-btn-wrapper" id="googleLoginWrapper"></div>
+        <button id="customGoogleBtn" onclick="googleLoginNow()" style="width:100%; padding:12px; background:#ffffff; color:#1f1f1f; border:1px solid #dadce0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Sign in with Google
+        </button>
         <div class="auth-divider">or</div>
         <button onclick="triggerGoogleAuth()" style="width:100%; padding:12px; background:#ffffff; color:#1f1f1f; border:1px solid #dadce0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
             <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
@@ -270,7 +273,10 @@
         </div>
         <button class="btn-primary" id="registerBtn">Create Account</button>
         <div class="auth-divider">or</div>
-        <div class="google-btn-wrapper" id="googleRegisterWrapper"></div>
+        <button id="customGoogleBtn" onclick="googleLoginNow()" style="width:100%; padding:12px; background:#ffffff; color:#1f1f1f; border:1px solid #dadce0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Sign in with Google
+        </button>
         <div class="auth-divider">or</div>
         <button onclick="triggerGoogleAuth()" style="width:100%; padding:12px; background:#ffffff; color:#1f1f1f; border:1px solid #dadce0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
             <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
@@ -753,59 +759,10 @@
     // ============================================================
     // GOOGLE ONE TAP (EXACT WORKING LOGIC)
     // ============================================================
-    function initGoogleOneTap() {
-        if (typeof google === 'undefined') { setTimeout(initGoogleOneTap, 1000); return; }
-        if (loadSession()) return;
-        google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: false
-        });
-        google.accounts.id.prompt();
-    }
-
-    function handleGoogleCredentialResponse(response) {
-        var idToken = response.credential;
-        showLoader('login');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: idToken })
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) {
-                currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
-                showResultModal(true, 'Welcome!', 'You have been signed in with Google.');
-            } else { showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in with Google.'); }
-        })
-        .catch(function(err) { hideLoader(); showResultModal(false, 'Network Error', err.message); });
-    }
-
-    document.getElementById('showRegister').onclick = function() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; renderGoogleButton('googleRegisterWrapper'); };
+    
     document.getElementById('showLogin').onclick = function() { document.getElementById('registerForm').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); };
 
-    function renderGoogleButton(containerId) {
-        var container = document.getElementById(containerId); if (!container) return;
-        if (typeof google === 'undefined') { setTimeout(function() { renderGoogleButton(containerId); }, 500); return; }
-        container.innerHTML = '';
-        google.accounts.id.renderButton(container, { type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300 });
-    }
-
-    document.getElementById('registerBtn').onclick = async function() {
-        var name = document.getElementById('regName').value.trim(); var surname = document.getElementById('regSurname').value.trim(); var email = document.getElementById('regEmail').value.trim(); var password = document.getElementById('regPassword').value.trim(); var confirmPassword = document.getElementById('regConfirmPassword').value.trim(); var traffic = document.getElementById('regTraffic').value;
-        if (!name || !surname || !email || !password || !confirmPassword) { showResultModal(false, 'Validation Error', 'Please fill in all fields.'); return; }
-        if (password !== confirmPassword) { showResultModal(false, 'Validation Error', 'Passwords do not match.'); return; }
-        showLoader('register');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, surname: surname, email: email, password: password, traffic: traffic }) });
-            var data = await res.json();
-            if (data.status === 201) { showResultModal(true, 'Account Created!', 'Your account has been created successfully. Please login.'); document.getElementById('registerForm').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); }
-            else { showResultModal(false, 'Registration Failed', data.message || 'Something went wrong.'); }
-        } catch (e) { showResultModal(false, 'Network Error', e.message); }
-        hideLoader();
-    };
+    
 
     document.getElementById('loginBtn').onclick = async () => {
         var email = document.getElementById('loginEmail').value.trim(); var password = document.getElementById('loginPassword').value.trim();
@@ -1523,41 +1480,14 @@
     };
 
     
-    window.triggerGoogleAuth = function() {
-        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google API is still loading. Please wait a moment and try again.'); return; }
-        google.accounts.id.initialize({ client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', callback: handleGoogleCredentialResponse });
-        google.accounts.id.prompt();
-    };
-
-    window.handleGoogleCredentialResponse = function(response) {
-        showLoader('Signing in with Google...');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: response.credential })
-        }).then(res => res.json()).then(data => {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) { currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp(); showResultModal(true, 'Welcome!', 'Signed in with Google.'); } 
-            else { showResultModal(false, 'Failed', data.message || 'Could not sign in.'); }
-        }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
-    };
+    
 
     
-    window.triggerGoogleAuth = function() {
-        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google API is loading. Please try again.'); return; }
-        google.accounts.id.initialize({ client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', callback: handleGoogleCredentialResponse });
-        google.accounts.id.prompt();
-    };
 
-    window.handleGoogleCredentialResponse = function(response) {
-        showLoader('Signing in with Google...');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: response.credential })
-        }).then(res => res.json()).then(data => {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) { 
-                currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp(); showResultModal(true, 'Welcome!', 'Signed in with Google.'); 
-            } else { showResultModal(false, 'Failed', data.message || 'Could not sign in.'); }
-        }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
-    };
+    
+    
+
+    
 
     window.addEventListener('load', function() {
         setTimeout(function() {
@@ -1573,31 +1503,7 @@
     // ============================================================
     // GOOGLE ONE TAP (FIXED)
     // ============================================================
-    window.handleGoogleCredentialResponse = function(response) {
-        showLoader('Signing in with Google...');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: response.credential })
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) {
-                currentUser = data;
-                currentSession = data.session_token;
-                saveSession(data, data.session_token);
-                enterApp();
-                showResultModal(true, 'Welcome!', 'You have been signed in with Google.');
-            } else {
-                showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in with Google.');
-            }
-        })
-        .catch(function(err) {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    };
+    
 
     function initGoogleOneTap() {
         if (typeof google === 'undefined') { setTimeout(initGoogleOneTap, 1000); return; }
@@ -1635,40 +1541,9 @@
     // ============================================================
     // GOOGLE AUTHENTICATION (RESTORED)
     // ============================================================
-    window.triggerGoogleAuth = function() {
-        if (typeof google === 'undefined') { 
-            showResultModal(false, 'Error', 'Google API is still loading. Please refresh and try again.'); 
-            return; 
-        }
-        google.accounts.id.initialize({ 
-            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
-            callback: handleGoogleResponse 
-        });
-        google.accounts.id.prompt(); // Shows the popup
-    };
+    
 
-    window.handleGoogleResponse = function(response) {
-        showLoader('Signing in with Google...');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ token: response.credential })
-        }).then(res => res.json()).then(data => {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) { 
-                currentUser = data; 
-                currentSession = data.session_token; 
-                saveSession(data, data.session_token); 
-                enterApp(); 
-                showResultModal(true, 'Welcome!', 'Signed in with Google.'); 
-            } else { 
-                showResultModal(false, 'Failed', data.message || 'Could not sign in.'); 
-            }
-        }).catch(err => { 
-            hideLoader(); 
-            showResultModal(false, 'Error', err.message); 
-        });
-    };
+    
 
     // Auto-trigger Google One Tap on page load
     window.addEventListener('load', function() {
@@ -1689,40 +1564,9 @@
     // ============================================================
     // FORCE GOOGLE BUTTON FUNCTION
     // ============================================================
-    window.triggerGoogleAuth = function() {
-        if (typeof google === 'undefined') { 
-            showResultModal(false, 'Error', 'Google API is still loading. Please wait 2 seconds and try again.'); 
-            return; 
-        }
-        google.accounts.id.initialize({ 
-            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
-            callback: handleGoogleResponse 
-        });
-        google.accounts.id.prompt();
-    };
+    
 
-    window.handleGoogleResponse = function(response) {
-        showLoader('Signing in with Google...');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ token: response.credential })
-        }).then(res => res.json()).then(data => {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) { 
-                currentUser = data; 
-                currentSession = data.session_token; 
-                saveSession(data, data.session_token); 
-                enterApp(); 
-                showResultModal(true, 'Welcome!', 'Signed in with Google.'); 
-            } else { 
-                showResultModal(false, 'Failed', data.message || 'Could not sign in.'); 
-            }
-        }).catch(err => { 
-            hideLoader(); 
-            showResultModal(false, 'Error', err.message); 
-        });
-    };
+    
 
     window.addEventListener('load', function() {
         setTimeout(function() {
@@ -1737,37 +1581,9 @@
     });
     
 
-    window.triggerGoogleAuth = function() {
-        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google API is loading. Please wait.'); return; }
-        google.accounts.id.initialize({ 
-            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
-            callback: handleGoogleCredentialResponse 
-        });
-        google.accounts.id.prompt();
-    };
+    
 
-    window.handleGoogleCredentialResponse = function(response) {
-        showLoader('Signing in with Google...');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ token: response.credential })
-        }).then(res => res.json()).then(data => {
-            hideLoader();
-            if (data.status === 200 || data.status === 201) { 
-                currentUser = data; 
-                currentSession = data.session_token; 
-                saveSession(data, data.session_token); 
-                enterApp(); 
-                showResultModal(true, 'Welcome!', 'Signed in with Google.'); 
-            } else { 
-                showResultModal(false, 'Failed', data.message || 'Could not sign in.'); 
-            }
-        }).catch(err => { 
-            hideLoader(); 
-            showResultModal(false, 'Error', err.message); 
-        });
-    };
+    
 
     window.addEventListener('load', function() {
         setTimeout(function() {
@@ -1780,6 +1596,84 @@
             }
         }, 1500);
     });
+
+
+    window.googleLoginNow = function() {
+        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google is still loading. Please wait 2 seconds.'); return; }
+        google.accounts.id.initialize({
+            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
+            callback: function(response) {
+                showLoader('Signing in with Google...');
+                fetch(API_BASE + '/api/v1/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.credential })
+                }).then(res => res.json()).then(data => {
+                    hideLoader();
+                    if (data.status === 200 || data.status === 201) {
+                        currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
+                        showResultModal(true, 'Welcome!', 'Signed in with Google.');
+                    } else { showResultModal(false, 'Failed', data.message || 'Could not sign in.'); }
+                }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
+            }
+        });
+        google.accounts.id.prompt();
+    };
+
+    // Fix Security Save Button
+    var saveBtn = document.getElementById('saveRecoveryBtn');
+    if (saveBtn) {
+        saveBtn.onclick = async function() {
+            var code1 = document.getElementById('newRecoveryCode').value.trim();
+            var code2 = document.getElementById('confirmRecoveryCode').value.trim();
+            var errEl = document.getElementById('recoverySetupError');
+            
+            if (code1.length !== 6 || !/^[0-9]+$/.test(code1)) {
+                errEl.textContent = 'Code must be exactly 6 numbers.';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (code1 !== code2) {
+                errEl.textContent = 'Codes do not match.';
+                errEl.style.display = 'block';
+                return;
+            }
+            
+            showLoader('Saving...');
+            try {
+                var res = await fetch(API_BASE + '/api/v1/security/enable', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession },
+                    body: JSON.stringify({ recovery_code: code1 })
+                });
+                var data = await res.json();
+                hideLoader();
+                if (data.success) {
+                    document.getElementById('setupRecoveryModal').classList.remove('show');
+                    document.getElementById('securityStatusText').textContent = 'Enabled';
+                    document.getElementById('securityStatusText').style.color = '#34c759';
+                    document.getElementById('toggleSecurityBtn').textContent = 'Disable';
+                    document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
+                    showResultModal(true, 'Enabled!', 'Login alerts are now active.');
+                } else {
+                    errEl.textContent = data.message || 'Failed to enable.';
+                    errEl.style.display = 'block';
+                }
+            } catch(e) {
+                hideLoader();
+                errEl.textContent = 'Network error.';
+                errEl.style.display = 'block';
+            }
+        };
+    }
+
+    // Fix Security Cancel Button
+    var cancelBtn = document.getElementById('cancelRecoveryBtn');
+    if (cancelBtn) {
+        cancelBtn.onclick = function() {
+            document.getElementById('setupRecoveryModal').classList.remove('show');
+        };
+    }
 
 </script>
 
