@@ -1406,181 +1406,99 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 // WAIT FOR DOM TO BE READY, THEN ATTACH HANDLERS
 // ============================================================
-function attachAuthHandlers() {
-    var loginBtn = document.getElementById('loginBtn');
-    var registerBtn = document.getElementById('registerBtn');
-    var showReg = document.getElementById('showRegister');
-    var showLog = document.getElementById('showLogin');
-    
-    if (!loginBtn || !registerBtn) {
-        // DOM not ready yet, retry in 100ms
-        setTimeout(attachAuthHandlers, 100);
-        return;
-    }
-    
-    console.log('✅ Auth elements found, attaching handlers...');
-
-document.getElementById('showRegister').onclick = function() {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('registerForm').style.display = 'block';
-    };
-    document.getElementById('showLogin').onclick = function() {
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('loginForm').style.display = 'block';
-    };
-    
-    // Login handler
-    document.getElementById('loginBtn').onclick = async function() {
-        var email = document.getElementById('loginEmail').value.trim();
-        var password = document.getElementById('loginPassword').value.trim();
-        if (!email || !password) { showResultModal(false, 'Error', 'Please enter email and password.'); return; }
-        showLoader('Signing in...');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-            var data = await res.json();
-            hideLoader();
-            if (data.status === 200) {
-                currentUser = data;
-                currentSession = data.session_token;
-                saveSession(data, data.session_token);
-                enterApp();
-                showResultModal(true, 'Welcome Back!', 'Logged in successfully.');
-            } else if (data.status === 202 && data.pending) {
-                document.getElementById('pendingLoginModal').classList.add('show');
-                document.getElementById('pendingWaiting').style.display = 'block';
-                document.getElementById('pendingRecovery').style.display = 'none';
-                document.getElementById('pendingLocked').style.display = 'none';
-                let timeLeft = 30;
-                const timerText = document.getElementById('pendingTimerText');
-                const timerInterval = setInterval(() => {
-                    timeLeft--;
-                    timerText.textContent = 'Waiting for approval... (' + timeLeft + 's)';
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        document.getElementById('pendingWaiting').style.display = 'none';
-                        document.getElementById('pendingRecovery').style.display = 'block';
-                    }
-                }, 1000);
-            } else {
-                showResultModal(false, 'Login Failed', data.message || 'Invalid credentials.');
-            }
-        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
-    };
-    
-    // Register handler
-    document.getElementById('registerBtn').onclick = async function() {
-        var name = document.getElementById('regName').value.trim();
-        var surname = document.getElementById('regSurname').value.trim();
-        var email = document.getElementById('regEmail').value.trim();
-        var password = document.getElementById('regPassword').value.trim();
-        var confirm = document.getElementById('regConfirmPassword').value.trim();
-        if (!name || !surname || !email || !password || !confirm) { showResultModal(false, 'Error', 'Please fill all fields.'); return; }
-        if (password !== confirm) { showResultModal(false, 'Error', 'Passwords do not match.'); return; }
-        showLoader('Creating account...');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, surname, email, password, traffic: '10-50' }) });
-            var data = await res.json();
-            hideLoader();
-            if (data.status === 201) {
-                showResultModal(true, 'Account Created!', 'Please sign in now.');
-                document.getElementById('registerForm').style.display = 'none';
-                document.getElementById('loginForm').style.display = 'block';
-            } else {
-                showResultModal(false, 'Registration Failed', data.message || 'Error');
-            }
-        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
-    };
 
     // ============================================================
-    // GOOGLE SIGN IN
+    // FORCE ATTACH AUTH HANDLERS (HARD INTERVAL)
     // ============================================================
-    
-    // ============================================================
-    // GOOGLE SIGN-IN (SAFE - only runs when Google is loaded)
-    // ============================================================
-    function initGoogleSignIn() {
-        if (typeof google === 'undefined') {
-            // Google not loaded yet, retry in 500ms
-            setTimeout(initGoogleSignIn, 500);
+    (function attachAuthHandlers() {
+        var loginBtn = document.getElementById('loginBtn');
+        var registerBtn = document.getElementById('registerBtn');
+        var showReg = document.getElementById('showRegister');
+        var showLog = document.getElementById('showLogin');
+        
+        // If ANY of the needed elements is missing, retry in 100ms (NEVER give up)
+        if (!loginBtn || !registerBtn || !showReg || !showLog) {
+            setTimeout(attachAuthHandlers, 100);
             return;
         }
         
-        try {
-            google.accounts.id.initialize({
-                client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
-                callback: handleGoogleCredential
-            });
-            
-            // Render the button
-            var container = document.getElementById('googleBtnContainer');
-            if (container) {
-                container.innerHTML = '';
-                google.accounts.id.renderButton(container, {
-                    type: 'standard',
-                    shape: 'rectangular',
-                    theme: 'outline',
-                    text: 'signin_with',
-                    size: 'large',
-                    width: 300
-                });
-                console.log('✅ Google button rendered.');
-            }
-            
-            // Show One Tap popup
-            google.accounts.id.prompt();
-            console.log('✅ Google One Tap prompt shown.');
-            
-        } catch (e) {
-            console.error('Google init error:', e);
-        }
-    }
-
-    function handleGoogleCredential(response) {
-        showLoader('Signing in with Google...');
-        fetch(API_BASE + '/api/v1/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: response.credential })
-        }).then(res => res.json()).then(data => {
-            hideLoader();
-            if (data.status === 200 || data.status === 201 || data.session_token) {
-                currentUser = data;
-                currentSession = data.session_token;
-                saveSession(data, data.session_token);
-                enterApp();
-                showResultModal(true, 'Welcome!', 'Signed in with Google.');
-            } else {
-                showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in.');
-            }
-        }).catch(err => {
-            hideLoader();
-            showResultModal(false, 'Network Error', err.message);
-        });
-    }
-
-    window.googleLoginNow = function() {
-        if (typeof google === 'undefined') {
-            showResultModal(false, 'Error', 'Google is still loading. Please wait 2 seconds and try again.');
-            return;
-        }
-        google.accounts.id.prompt();
-    };
-
-    // Start trying to initialize Google every 500ms until it loads
-    initGoogleSignIn();
-
-
-    // SAFE LOGIN WRAPPER - prevents errors from breaking the page
-    (function() {
-        window.addEventListener('error', function(e) {
-            console.warn('JS Error caught:', e.message);
-            // Prevent default so the page keeps running
-            return false;
-        });
+        // All elements found — attach handlers
+        console.log('✅ All auth elements found, attaching handlers...');
+        
+        // Show/hide register form
+        showReg.onclick = function() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        };
+        
+        showLog.onclick = function() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        };
+        
+        // Login handler
+        loginBtn.onclick = async function() {
+            var email = document.getElementById('loginEmail').value.trim();
+            var password = document.getElementById('loginPassword').value.trim();
+            if (!email || !password) { showResultModal(false, 'Error', 'Please enter email and password.'); return; }
+            showLoader('Signing in...');
+            try {
+                var res = await fetch(API_BASE + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                var data = await res.json();
+                hideLoader();
+                if (data.status === 200) {
+                    currentUser = data;
+                    currentSession = data.session_token;
+                    saveSession(data, data.session_token);
+                    enterApp();
+                    showResultModal(true, 'Welcome Back!', 'Logged in successfully.');
+                } else if (data.status === 202 && data.pending) {
+                    document.getElementById('pendingLoginModal').classList.add('show');
+                    document.getElementById('pendingWaiting').style.display = 'block';
+                    document.getElementById('pendingRecovery').style.display = 'none';
+                    document.getElementById('pendingLocked').style.display = 'none';
+                    let timeLeft = 30;
+                    const timerText = document.getElementById('pendingTimerText');
+                    const timerInterval = setInterval(() => {
+                        timeLeft--;
+                        timerText.textContent = 'Waiting for approval... (' + timeLeft + 's)';
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            document.getElementById('pendingWaiting').style.display = 'none';
+                            document.getElementById('pendingRecovery').style.display = 'block';
+                        }
+                    }, 1000);
+                } else {
+                    showResultModal(false, 'Login Failed', data.message || 'Invalid credentials.');
+                }
+            } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
+        };
+        
+        // Register handler
+        registerBtn.onclick = async function() {
+            var name = document.getElementById('regName').value.trim();
+            var surname = document.getElementById('regSurname').value.trim();
+            var email = document.getElementById('regEmail').value.trim();
+            var password = document.getElementById('regPassword').value.trim();
+            var confirm = document.getElementById('regConfirmPassword').value.trim();
+            if (!name || !surname || !email || !password || !confirm) { showResultModal(false, 'Error', 'Please fill all fields.'); return; }
+            if (password !== confirm) { showResultModal(false, 'Error', 'Passwords do not match.'); return; }
+            showLoader('Creating account...');
+            try {
+                var res = await fetch(API_BASE + '/api/v1/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, surname, email, password, traffic: '10-50' }) });
+                var data = await res.json();
+                hideLoader();
+                if (data.status === 201) {
+                    showResultModal(true, 'Account Created!', 'Please sign in now.');
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                } else {
+                    showResultModal(false, 'Registration Failed', data.message || 'Error');
+                }
+            } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
+        };
     })();
-    
 
-}
 
 // Run when DOM is ready
 if (document.readyState === 'loading') {
