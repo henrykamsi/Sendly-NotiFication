@@ -1402,7 +1402,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     
     // Show/Hide register form
-    document.getElementById('showRegister').onclick = function() {
+    
+// ============================================================
+// WAIT FOR DOM TO BE READY, THEN ATTACH HANDLERS
+// ============================================================
+function attachAuthHandlers() {
+    var loginBtn = document.getElementById('loginBtn');
+    var registerBtn = document.getElementById('registerBtn');
+    var showReg = document.getElementById('showRegister');
+    var showLog = document.getElementById('showLogin');
+    
+    if (!loginBtn || !registerBtn) {
+        // DOM not ready yet, retry in 100ms
+        setTimeout(attachAuthHandlers, 100);
+        return;
+    }
+    
+    console.log('✅ Auth elements found, attaching handlers...');
+
+document.getElementById('showRegister').onclick = function() {
         document.getElementById('loginForm').style.display = 'none';
         document.getElementById('registerForm').style.display = 'block';
     };
@@ -1561,6 +1579,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     })();
     
+
+}
+
+// Run when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachAuthHandlers);
+} else {
+    // DOM already ready, run immediately
+    attachAuthHandlers();
+}
 </script>
 
 <div class="modal-overlay" id="setupRecoveryModal">
