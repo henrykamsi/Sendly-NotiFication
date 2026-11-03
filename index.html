@@ -485,7 +485,16 @@
         </div>
     </div>
 
-    <div class="tab-content" id="tabSettings" style="display:none;">
+    
+    <div class="tab-content" id="tabSecurity" style="display:none;">
+        <h2 style="color:#00f2fe; font-size:22px; font-weight:700; margin-bottom:18px;">🔒 Security Logs</h2>
+        <div class="card">
+            <h3>Recent Activity</h3>
+            <div id="securityLogsList"><p style="color:#6a6a76;">Loading logs...</p></div>
+        </div>
+    </div>
+
+<div class="tab-content" id="tabSettings" style="display:none;">
         <h2 style="color:#00f2fe; font-size:22px; font-weight:700; margin-bottom:18px;">⚙️ Settings</h2>
         <div class="card">
             <h3>🌓 Appearance</h3>
@@ -596,6 +605,7 @@
         <button class="nav-item active" data-tab="tabCreateApp"><span class="icon">📱</span> Apps</button>
         <button class="nav-item" data-tab="tabPush"><span class="icon">🔔</span> Push</button>
         <button class="nav-item" data-tab="tabStats"><span class="icon">📊</span> Stats</button>
+        <button class="nav-item" data-tab="tabSecurity"><span class="icon">🔒</span> Security</button>
         <button class="nav-item" data-tab="tabSettings"><span class="icon">⚙️</span> Settings</button>
     </nav>
 
@@ -863,6 +873,7 @@
             if (tabId === 'tabStats') { loadStats(); loadSubscriberTokens(); loadAnalyticsNotifications(); }
             if (tabId === 'tabPush') { loadPushApps(); loadPushHistory(); loadScheduledNotifications(); updateScheduledCount(); }
             if (tabId === 'tabSettings') { loadCrackSignal(); loadWebhooks(); loadProfile(); }
+            if (tabId === 'tabSecurity') { loadSecurityLogs(); }
         };
     });
 
@@ -1426,6 +1437,81 @@
         } catch(e) {}
     }
 
+    
+    // ============================================================
+    // SECURITY LOGS LOGIC
+    // ============================================================
+    async function loadSecurityLogs() {
+        if (!currentSession) return;
+        try {
+            var res = await fetch(API_BASE + '/api/v1/security/logs', { headers: { 'x-session-token': currentSession } });
+            var data = await res.json();
+            var container = document.getElementById('securityLogsList');
+            if (data.logs && data.logs.length > 0) {
+                container.innerHTML = data.logs.map(function(log) {
+                    var statusColor = log.status === 'pending' ? '#ffa500' : (log.status === 'approved' ? '#34c759' : '#ff453a');
+                    var buttons = '';
+                    if (log.status === 'pending') {
+                        buttons = '<div style="display:flex; gap:8px; margin-top:10px;">' +
+                            '<button class="btn btn-success btn-sm" onclick="approveLogin(' + log.id + ')">✅ It was me</button>' +
+                            '<button class="btn btn-danger btn-sm" onclick="denyLogin(' + log.id + ')">❌ It wasn\'t me</button>' +
+                            '</div>';
+                    }
+                    return '<div class="notif-item" style="margin-bottom:10px;">' +
+                        '<div class="header"><span class="title">' + (log.action || 'Login Attempt') + '</span><span class="time">' + (log.created_at || '') + '</span></div>' +
+                        '<div class="stats"><span>🌐 IP: ' + (log.ip_address || 'Unknown') + '</span><span>📱 ' + (log.device_name ? log.device_name.substring(0, 20) : 'Unknown') + '</span></div>' +
+                        '<div style="color:' + statusColor + '; font-weight:600; margin-top:6px;">Status: ' + (log.status || 'pending') + '</div>' +
+                        buttons +
+                        '</div>';
+                }).join('');
+            } else {
+                container.innerHTML = '<p style="color:#6a6a76;">No security alerts yet.</p>';
+            }
+        } catch(e) { console.warn(e); }
+    }
+
+    window.approveLogin = async function(logId) {
+        try {
+            var res = await fetch(API_BASE + '/api/v1/security/approve', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession }, body: JSON.stringify({ log_id: logId }) });
+            var data = await res.json();
+            if (data.success) { showResultModal(true, 'Approved', 'Login approved. IP is now trusted.'); loadSecurityLogs(); }
+        } catch(e) {}
+    };
+
+    window.denyLogin = async function(logId) {
+        if (!confirm('Block this login and change your password?')) return;
+        try {
+            var res = await fetch(API_BASE + '/api/v1/security/deny', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession }, body: JSON.stringify({ log_id: logId }) });
+            var data = await res.json();
+            if (data.success) {
+                document.getElementById('changePasswordModal').classList.add('show');
+                loadSecurityLogs();
+            }
+        } catch(e) {}
+    };
+
+    document.getElementById('closeChangePasswordBtn').onclick = function() {
+        document.getElementById('changePasswordModal').classList.remove('show');
+    };
+
+    document.getElementById('saveNewPasswordBtn').onclick = async function() {
+        var p1 = document.getElementById('newPasswordField').value.trim();
+        var p2 = document.getElementById('confirmPasswordField').value.trim();
+        var errEl = document.getElementById('changePasswordError');
+        if (!p1 || p1 !== p2) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+        try {
+            var res = await fetch(API_BASE + '/api/v1/account/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession }, body: JSON.stringify({ current_password: '', new_password: p1, confirm_password: p2 }) });
+            var data = await res.json();
+            if (data.success) {
+                document.getElementById('changePasswordModal').classList.remove('show');
+                showResultModal(true, 'Password Changed', 'Your password has been updated.');
+            } else {
+                errEl.textContent = data.message || 'Failed to change password.';
+                errEl.style.display = 'block';
+            }
+        } catch(e) { errEl.textContent = 'Network error.'; errEl.style.display = 'block'; }
+    };
+
     if (loadSession()) { enterApp(); } else { document.getElementById('authScreen').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper'); initGoogleOneTap(); }
 </script>
 
@@ -1462,6 +1548,19 @@
         <div id="recoverySetupError" style="color: #ff453a; font-size: 13px; margin-bottom: 10px; display: none;"></div>
         <button class="btn btn-primary btn-block" id="saveRecoveryBtn">💾 Save Code & Enable</button>
         <button class="btn btn-secondary btn-block" id="cancelRecoveryBtn" style="margin-top: 8px;">Cancel</button>
+    </div>
+</div>
+
+
+<div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <h2 style="color:#ff453a; margin-bottom: 8px;">🔑 Change Your Password</h2>
+        <p style="color:#6a6a76; font-size: 14px;">A login attempt was blocked. Please change your password immediately to secure your account.</p>
+        <input type="password" id="newPasswordField" placeholder="New password" style="width: 100%; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #e8e8ec; margin: 16px 0 12px;" />
+        <input type="password" id="confirmPasswordField" placeholder="Confirm new password" style="width: 100%; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #e8e8ec; margin-bottom: 16px;" />
+        <div id="changePasswordError" style="color: #ff453a; font-size: 13px; margin-bottom: 10px; display: none;"></div>
+        <button class="btn btn-primary btn-block" id="saveNewPasswordBtn">💾 Save New Password</button>
+        <button class="btn btn-secondary btn-block" id="closeChangePasswordBtn" style="margin-top: 8px;">Later</button>
     </div>
 </div>
 
