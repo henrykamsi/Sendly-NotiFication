@@ -8,8 +8,7 @@
     <title>Sendly Notification</title>
     <meta name="description" content="Sendly Notification | A Way To Update">
     <link rel="icon" type="image/png" href="https://i.ibb.co/CLqyBTb/1786407016727.png">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <style>
+        <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0b0e; color: #e8e8ec; min-height: 100vh; transition: background 0.3s, color 0.3s; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
         body.light-mode { background: #f2f2f6; color: #1c1c1e; }
@@ -205,80 +204,41 @@
     <div class="loader-text"><span id="loaderAction">Loading</span>…</div>
 </div>
 
-<div id="authScreen">
-    <div class="auth-logo">
-        <h1>Sendly</h1>
-        <p>by Henry Global Tech Industry</p>
+<div id="authScreen" style="max-width: 400px; margin: 60px auto; padding: 24px;">
+    <div class="auth-logo" style="text-align: center; margin-bottom: 32px;">
+        <h1 style="font-size: 34px; font-weight: 800; color: #00f2fe;">Sendly</h1>
+        <p style="color: #6a6a76; font-size: 14px;">by Henry Global Tech Industry</p>
     </div>
 
-    <div id="loginForm" class="auth-card">
-        <h2>Welcome back</h2>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="loginEmail" placeholder="you@example.com" />
+    <div class="auth-card" style="background: #151518; border: 1px solid #2a2a30; border-radius: 16px; padding: 28px 24px;">
+        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #e8e8ec;">Welcome back</h2>
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Email</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" />
         </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="Enter your password" />
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" />
         </div>
-        <button class="btn-primary" id="loginBtn">Sign In</button>
-        <div class="auth-divider">or</div>
-        <button onclick="googleLoginNow()" style="width:100%; padding:12px; background:#ffffff; color:#1f1f1f; border:1px solid #dadce0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
-            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            Sign in with Google
-        </button>
-        <div class="auth-divider">or</div><div class="auth-toggle">
-            Don't have an account? <a id="showRegister">Create one</a>
+        <button id="loginBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #00f2fe, #4facfe); border-radius: 10px; font-weight: 600; font-size: 15px; color: #000; cursor: pointer; border: none;">Sign In</button>
+        <div style="text-align: center; margin-top: 16px; font-size: 14px; color: #6a6a76;">
+            Don't have an account? <a id="showRegister" style="color: #00f2fe; font-weight: 600; cursor: pointer;">Create one</a>
         </div>
     </div>
 
-    <div id="registerForm" class="auth-card" style="display:none;">
-        <h2>Create account</h2>
-        <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="regName" placeholder="John Doe" />
-        </div>
-        <div class="form-group">
-            <label>Surname</label>
-            <input type="text" id="regSurname" placeholder="Doe" />
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="regEmail" placeholder="you@example.com" />
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="regPassword" placeholder="Create a password" />
-        </div>
-        <div class="form-group">
-            <label>Confirm Password</label>
-            <input type="password" id="regConfirmPassword" placeholder="Confirm your password" />
-        </div>
-        <div class="form-group">
-            <label>Audience Size</label>
-            <select id="regTraffic">
-                <option value="10-50">10 – 50</option>
-                <option value="50-100">50 – 100</option>
-                <option value="100-500" selected>100 – 500</option>
-                <option value="500-1000">500 – 1,000</option>
-                <option value="1000-5000">1,000 – 5,000</option>
-                <option value="5000-10000">5,000 – 10,000</option>
-                <option value="10000+">10,000+</option>
-            </select>
-        </div>
-        <button class="btn-primary" id="registerBtn">Create Account</button>
-        <div class="auth-divider">or</div>
-        <button onclick="googleLoginNow()" style="width:100%; padding:12px; background:#ffffff; color:#1f1f1f; border:1px solid #dadce0; border-radius:10px; font-weight:600; font-size:15px; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; margin-bottom:16px;">
-            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            Sign up with Google
-        </button>
-        <div class="auth-divider">or</div><div class="auth-toggle">
-            Already have an account? <a id="showLogin">Sign in</a>
-        </div>
+    <div id="registerForm" class="auth-card" style="display:none; background: #151518; border: 1px solid #2a2a30; border-radius: 16px; padding: 28px 24px; margin-top: 16px;">
+        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #e8e8ec;">Create account</h2>
+        <div class="form-group" style="margin-bottom: 16px;"><label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Name</label><input type="text" id="regName" placeholder="John" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" /></div>
+        <div class="form-group" style="margin-bottom: 16px;"><label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Surname</label><input type="text" id="regSurname" placeholder="Doe" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" /></div>
+        <div class="form-group" style="margin-bottom: 16px;"><label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Email</label><input type="email" id="regEmail" placeholder="you@example.com" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" /></div>
+        <div class="form-group" style="margin-bottom: 16px;"><label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Password</label><input type="password" id="regPassword" placeholder="Password" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" /></div>
+        <div class="form-group" style="margin-bottom: 16px;"><label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Confirm Password</label><input type="password" id="regConfirmPassword" placeholder="Confirm Password" style="width: 100%; padding: 12px 14px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; font-size: 14px; color: #e8e8ec;" /></div>
+        <button id="registerBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #00f2fe, #4facfe); border-radius: 10px; font-weight: 600; font-size: 15px; color: #000; cursor: pointer; border: none;">Create Account</button>
+        <div style="text-align: center; margin-top: 16px; font-size: 14px; color: #6a6a76;">Already have an account? <a id="showLogin" style="color: #00f2fe; font-weight: 600; cursor: pointer;">Sign in</a></div>
     </div>
 </div>
 
-<div class="app-container" id="appContainer">
+class="app-container" id="appContainer">
 
     <header class="app-header">
         <div class="logo">Sendly <span>v2.0</span></div>
@@ -1439,230 +1399,7 @@
 
     
 
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            if (typeof google !== 'undefined' && !localStorage.getItem('sendly_session')) {
-                google.accounts.id.initialize({ client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', callback: handleGoogleCredentialResponse });
-                google.accounts.id.prompt();
-            }
-        }, 1500);
-    });
-
-    if (loadSession()) { enterApp(); } else { document.getElementById('authScreen').style.display = 'block'; renderGoogleButton('googleLoginWrapper'); renderGoogleButton('googleRegisterWrapper'); initGoogleOneTap(); }
-
-    // ============================================================
-    // GOOGLE ONE TAP (FIXED)
-    // ============================================================
     
-
-    function initGoogleOneTap() {
-        if (typeof google === 'undefined') { setTimeout(initGoogleOneTap, 1000); return; }
-        if (loadSession()) return;
-        google.accounts.id.initialize({
-            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
-            callback: handleGoogleCredentialResponse,
-            cancel_on_tap_outside: false,
-            auto_select: false
-        });
-        google.accounts.id.prompt();
-    }
-
-    function renderGoogleButton(containerId) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        if (typeof google === 'undefined') { setTimeout(function() { renderGoogleButton(containerId); }, 500); return; }
-        container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: container.parentElement.offsetWidth || 300
-        });
-    }
-
-    window.addEventListener('load', function() {
-        if (typeof loadSession === 'function') {
-            if (!loadSession()) {
-                renderGoogleButton('googleLoginWrapper');
-                renderGoogleButton('googleRegisterWrapper');
-                setTimeout(initGoogleOneTap, 1000);
-            }
-        }
-    });
-
-
-    // ============================================================
-    // GOOGLE AUTHENTICATION (RESTORED)
-    // ============================================================
-    
-
-    
-
-    // Auto-trigger Google One Tap on page load
-    window.addEventListener('load', function() {
-        if (typeof loadSession === 'function' && !loadSession()) {
-            setTimeout(function() {
-                if (typeof google !== 'undefined') {
-                    google.accounts.id.initialize({ 
-                        client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
-                        callback: handleGoogleResponse 
-                    });
-                    google.accounts.id.prompt();
-                }
-            }, 1500);
-        }
-    });
-
-
-    // ============================================================
-    // FORCE GOOGLE BUTTON FUNCTION
-    // ============================================================
-    
-
-    
-
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            if (typeof google !== 'undefined' && !localStorage.getItem('sendly_session')) {
-                google.accounts.id.initialize({ 
-                    client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
-                    callback: handleGoogleResponse 
-                });
-                google.accounts.id.prompt();
-            }
-        }, 1500);
-    });
-    
-
-    
-
-    
-
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            if (typeof google !== 'undefined' && !localStorage.getItem('sendly_session')) {
-                google.accounts.id.initialize({ 
-                    client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', 
-                    callback: handleGoogleCredentialResponse 
-                });
-                google.accounts.id.prompt();
-            }
-        }, 1500);
-    });
-
-
-    
-
-    // Fix Security Save Button
-    var saveBtn = document.getElementById('saveRecoveryBtn');
-    if (saveBtn) {
-        saveBtn.onclick = async function() {
-            var code1 = document.getElementById('newRecoveryCode').value.trim();
-            var code2 = document.getElementById('confirmRecoveryCode').value.trim();
-            var errEl = document.getElementById('recoverySetupError');
-            
-            if (code1.length !== 6 || !/^[0-9]+$/.test(code1)) {
-                errEl.textContent = 'Code must be exactly 6 numbers.';
-                errEl.style.display = 'block';
-                return;
-            }
-            if (code1 !== code2) {
-                errEl.textContent = 'Codes do not match.';
-                errEl.style.display = 'block';
-                return;
-            }
-            
-            showLoader('Saving...');
-            try {
-                var res = await fetch(API_BASE + '/api/v1/security/enable', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession },
-                    body: JSON.stringify({ recovery_code: code1 })
-                });
-                var data = await res.json();
-                hideLoader();
-                if (data.success) {
-                    document.getElementById('setupRecoveryModal').classList.remove('show');
-                    document.getElementById('securityStatusText').textContent = 'Enabled';
-                    document.getElementById('securityStatusText').style.color = '#34c759';
-                    document.getElementById('toggleSecurityBtn').textContent = 'Disable';
-                    document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
-                    showResultModal(true, 'Enabled!', 'Login alerts are now active.');
-                } else {
-                    errEl.textContent = data.message || 'Failed to enable.';
-                    errEl.style.display = 'block';
-                }
-            } catch(e) {
-                hideLoader();
-                errEl.textContent = 'Network error.';
-                errEl.style.display = 'block';
-            }
-        };
-    }
-
-    // Fix Security Cancel Button
-    var cancelBtn = document.getElementById('cancelRecoveryBtn');
-    if (cancelBtn) {
-        cancelBtn.onclick = function() {
-            document.getElementById('setupRecoveryModal').classList.remove('show');
-        };
-    }
-
-
-    
-
-    // Wait for page to load, then bind Save/Cancel buttons
-    window.addEventListener('load', function() {
-        var saveBtn = document.getElementById('saveRecoveryBtn');
-        if (saveBtn) {
-            saveBtn.onclick = async function() {
-                var code1 = document.getElementById('newRecoveryCode').value.trim();
-                var code2 = document.getElementById('confirmRecoveryCode').value.trim();
-                var errEl = document.getElementById('recoverySetupError');
-
-                if (code1.length !== 6 || !/^[0-9]+$/.test(code1)) {
-                    errEl.textContent = 'Code must be exactly 6 numbers.';
-                    errEl.style.display = 'block';
-                    return;
-                }
-                if (code1 !== code2) {
-                    errEl.textContent = 'Codes do not match.';
-                    errEl.style.display = 'block';
-                    return;
-                }
-
-                showLoader('Saving...');
-                try {
-                    var res = await fetch(API_BASE + '/api/v1/security/enable', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession },
-                        body: JSON.stringify({ recovery_code: code1 })
-                    });
-                    var data = await res.json();
-                    hideLoader();
-                    if (data.success) {
-                        document.getElementById('setupRecoveryModal').classList.remove('show');
-                        document.getElementById('securityStatusText').textContent = 'Enabled';
-                        document.getElementById('securityStatusText').style.color = '#34c759';
-                        document.getElementById('toggleSecurityBtn').textContent = 'Disable';
-                        document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
-                        showResultModal(true, 'Enabled!', 'Login alerts are now active.');
-                    } else {
-                        errEl.textContent = data.message || 'Failed to enable.';
-                        errEl.style.display = 'block';
-                    }
-                } catch(e) {
-                    hideLoader();
-                    errEl.textContent = 'Network error.';
-                    errEl.style.display = 'block';
-                }
-            };
-        }
-
-        var cancelBtn = document.getElementById('cancelRecoveryBtn');
-        if (cancelBtn) {
-            cancelBtn.onclick = function() {
-                document.getElementById('setupRecoveryModal').classList.remove('show');
-            };
-        }
-    });
 
 
     // ============================================================
@@ -1677,35 +1414,7 @@
 // ============================================================
 // GOOGLE LOGIN (WORKING)
 // ============================================================
-window.googleLoginNow = function() {
-    if (typeof google === 'undefined') { 
-        showResultModal(false, 'Error', 'Google API is still loading. Please wait 2 seconds and try again.'); 
-        return; 
-    }
-    google.accounts.id.initialize({
-        client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
-        callback: function(response) {
-            showLoader('Signing in with Google...');
-            fetch(API_BASE + '/api/v1/auth/google', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: response.credential })
-            }).then(res => res.json()).then(data => {
-                hideLoader();
-                if (data.status === 200 || data.status === 201) {
-                    currentUser = data; 
-                    currentSession = data.session_token; 
-                    saveSession(data, data.session_token); 
-                    enterApp();
-                    showResultModal(true, 'Welcome!', 'Signed in with Google.');
-                } else { 
-                    showResultModal(false, 'Failed', data.message || 'Could not sign in.'); 
-                }
-            }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
-        }
-    });
-    google.accounts.id.prompt();
-};
+
 
 // ============================================================
 // SAVE RECOVERY CODE (WORKING)
@@ -1767,6 +1476,73 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 });
+
+
+    document.getElementById('showRegister').onclick = function() {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+    };
+    document.getElementById('showLogin').onclick = function() {
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+    };
+
+    document.getElementById('loginBtn').onclick = async function() {
+        var email = document.getElementById('loginEmail').value.trim();
+        var password = document.getElementById('loginPassword').value.trim();
+        if (!email || !password) { showResultModal(false, 'Error', 'Please enter email and password.'); return; }
+        showLoader('Signing in...');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+            var data = await res.json();
+            hideLoader();
+            if (data.status === 200) {
+                currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
+                showResultModal(true, 'Welcome Back!', 'Logged in successfully.');
+            } else if (data.status === 202 && data.pending) {
+                document.getElementById('pendingLoginModal').classList.add('show');
+                document.getElementById('pendingWaiting').style.display = 'block';
+                document.getElementById('pendingRecovery').style.display = 'none';
+                document.getElementById('pendingLocked').style.display = 'none';
+                let timeLeft = 30;
+                const timerText = document.getElementById('pendingTimerText');
+                const timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerText.textContent = 'Waiting for approval... (' + timeLeft + 's)';
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        document.getElementById('pendingWaiting').style.display = 'none';
+                        document.getElementById('pendingRecovery').style.display = 'block';
+                    }
+                }, 1000);
+            } else {
+                showResultModal(false, 'Login Failed', data.message || 'Invalid credentials.');
+            }
+        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
+    };
+
+    document.getElementById('registerBtn').onclick = async function() {
+        var name = document.getElementById('regName').value.trim();
+        var surname = document.getElementById('regSurname').value.trim();
+        var email = document.getElementById('regEmail').value.trim();
+        var password = document.getElementById('regPassword').value.trim();
+        var confirm = document.getElementById('regConfirmPassword').value.trim();
+        if (!name || !surname || !email || !password || !confirm) { showResultModal(false, 'Error', 'Please fill all fields.'); return; }
+        if (password !== confirm) { showResultModal(false, 'Error', 'Passwords do not match.'); return; }
+        showLoader('Creating account...');
+        try {
+            var res = await fetch(API_BASE + '/api/v1/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, surname, email, password, traffic: '10-50' }) });
+            var data = await res.json();
+            hideLoader();
+            if (data.status === 201) {
+                showResultModal(true, 'Account Created!', 'Please sign in now.');
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            } else {
+                showResultModal(false, 'Registration Failed', data.message || 'Error');
+            }
+        } catch(e) { hideLoader(); showResultModal(false, 'Network Error', e.message); }
+    };
 
 </script>
 
