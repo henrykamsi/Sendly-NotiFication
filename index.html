@@ -211,7 +211,7 @@
         <p style="color: #6a6a76; font-size: 14px;">by Henry Global Tech Industry</p>
     </div>
 
-    <div class="auth-card" style="background: #151518; border: 1px solid #2a2a30; border-radius: 16px; padding: 28px 24px;">
+    <div id="loginForm" class="auth-card" style="background: #151518; border: 1px solid #2a2a30; border-radius: 16px; padding: 28px 24px;">
         <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #e8e8ec;">Welcome back</h2>
         <div class="form-group" style="margin-bottom: 16px;">
             <label style="display: block; font-size: 13px; color: #8a8a96; margin-bottom: 4px;">Email</label>
@@ -1563,156 +1563,80 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
     // GOOGLE SIGN IN
     // ============================================================
-    window.googleLoginNow = function() {
-        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google is still loading. Please wait 2 seconds.'); return; }
-        google.accounts.id.initialize({
-            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
-            callback: function(response) {
-                showLoader('Signing in with Google...');
-                fetch(API_BASE + '/api/v1/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
-                }).then(res => res.json()).then(data => {
-                    hideLoader();
-                    if (data.status === 200 || data.status === 201) {
-                        currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
-                        showResultModal(true, 'Welcome!', 'Signed in with Google.');
-                    } else { showResultModal(false, 'Failed', data.message || 'Could not sign in.'); }
-                }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
-            }
-        });
-        google.accounts.id.prompt();
-    };
-
-    // Render the Google button
-    function renderGoogleBtn() {
-        var container = document.getElementById('googleBtnContainer');
-        if (!container) return;
-        if (typeof google === 'undefined') { setTimeout(renderGoogleBtn, 500); return; }
-        container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard',
-            shape: 'rectangular',
-            theme: 'outline',
-            text: 'signin_with',
-            size: 'large',
-            width: 300
-        });
-    }
-
-    // ============================================================
-    // SAVE / CANCEL SECURITY CODE
-    // ============================================================
-    document.addEventListener('DOMContentLoaded', function() {
-        var saveBtn = document.getElementById('saveRecoveryBtn');
-        if (saveBtn) {
-            saveBtn.onclick = async function() {
-                var code1 = document.getElementById('newRecoveryCode').value.trim();
-                var code2 = document.getElementById('confirmRecoveryCode').value.trim();
-                var errEl = document.getElementById('recoverySetupError');
-                if (code1.length !== 6 || !/^[0-9]+$/.test(code1)) { errEl.textContent = 'Code must be 6 numbers.'; errEl.style.display = 'block'; return; }
-                if (code1 !== code2) { errEl.textContent = 'Codes do not match.'; errEl.style.display = 'block'; return; }
-                showLoader('Saving...');
-                try {
-                    var res = await fetch(API_BASE + '/api/v1/security/enable', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession }, body: JSON.stringify({ recovery_code: code1 }) });
-                    var data = await res.json();
-                    hideLoader();
-                    if (data.success) {
-                        document.getElementById('setupRecoveryModal').classList.remove('show');
-                        document.getElementById('securityStatusText').textContent = 'Enabled';
-                        document.getElementById('securityStatusText').style.color = '#34c759';
-                        document.getElementById('toggleSecurityBtn').textContent = 'Disable';
-                        document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
-                        showResultModal(true, 'Enabled!', 'Login alerts are now active.');
-                    } else { errEl.textContent = data.message || 'Failed.'; errEl.style.display = 'block'; }
-                } catch(e) { hideLoader(); errEl.textContent = 'Network error.'; errEl.style.display = 'block'; }
-            };
-        }
-        var cancelBtn = document.getElementById('cancelRecoveryBtn');
-        if (cancelBtn) {
-            cancelBtn.onclick = function() {
-                document.getElementById('setupRecoveryModal').classList.remove('show');
-                document.getElementById('recoverySetupError').style.display = 'none';
-                document.getElementById('newRecoveryCode').value = '';
-                document.getElementById('confirmRecoveryCode').value = '';
-            };
-        }
-    });
-
-    // ============================================================
-    // INIT
-    // ============================================================
-    if (loadSession()) { enterApp(); } else { 
-        document.getElementById('authScreen').style.display = 'flex'; 
-        setTimeout(function() {
-            if (typeof google !== 'undefined') {
-                google.accounts.id.initialize({ client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com', callback: function(response) {
-                    showLoader('Signing in...');
-                    fetch(API_BASE + '/api/v1/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: response.credential }) })
-                    .then(r => r.json()).then(d => { hideLoader(); if (d.session_token) { currentUser=d; currentSession=d.session_token; saveSession(d, d.session_token); enterApp(); } });
-                }});
-                google.accounts.id.prompt();
-                
-            }
-        }, 1500);
-    }
-
-
     
-    
-
-    window.googleLoginNow = function() {
-        if (typeof google === 'undefined') { showResultModal(false, 'Error', 'Google is still loading. Please wait 2 seconds.'); return; }
-        google.accounts.id.initialize({
-            client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
-            callback: function(response) {
-                showLoader('Signing in with Google...');
-                fetch(API_BASE + '/api/v1/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
-                }).then(res => res.json()).then(data => {
-                    hideLoader();
-                    if (data.status === 200 || data.status === 201) {
-                        currentUser = data; currentSession = data.session_token; saveSession(data, data.session_token); enterApp();
-                        showResultModal(true, 'Welcome!', 'Signed in with Google.');
-                    } else { showResultModal(false, 'Failed', data.message || 'Could not sign in.'); }
-                }).catch(err => { hideLoader(); showResultModal(false, 'Error', err.message); });
-            }
-        });
-        google.accounts.id.prompt();
-    };
-
-    function renderGoogleBtn() {
-        var container = document.getElementById('googleBtnContainer');
-        if (!container) { console.log('googleBtnContainer not found'); return; }
-        if (typeof google === 'undefined') { setTimeout(renderGoogleBtn, 500); return; }
-        container.innerHTML = '';
-        google.accounts.id.renderButton(container, {
-            type: 'standard', shape: 'rectangular', theme: 'outline', text: 'signin_with', size: 'large', width: 300
-        });
-        console.log('✅ Google button rendered.');
-    }
-
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            if (typeof google !== 'undefined' && !localStorage.getItem('sendly_session')) {
-                google.accounts.id.initialize({
-                    client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
-                    callback: function(response) {
-                        showLoader('Signing in with Google...');
-                        fetch(API_BASE + '/api/v1/auth/google', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ token: response.credential })
-                        }).then(r => r.json()).then(d => { hideLoader(); if (d.session_token) { currentUser=d; currentSession=d.session_token; saveSession(d, d.session_token); enterApp(); } });
-                    }
+    // ============================================================
+    // GOOGLE SIGN-IN (SAFE - only runs when Google is loaded)
+    // ============================================================
+    function initGoogleSignIn() {
+        if (typeof google === 'undefined') {
+            // Google not loaded yet, retry in 500ms
+            setTimeout(initGoogleSignIn, 500);
+            return;
+        }
+        
+        try {
+            google.accounts.id.initialize({
+                client_id: '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com',
+                callback: handleGoogleCredential
+            });
+            
+            // Render the button
+            var container = document.getElementById('googleBtnContainer');
+            if (container) {
+                container.innerHTML = '';
+                google.accounts.id.renderButton(container, {
+                    type: 'standard',
+                    shape: 'rectangular',
+                    theme: 'outline',
+                    text: 'signin_with',
+                    size: 'large',
+                    width: 300
                 });
-                google.accounts.id.prompt();
-                
+                console.log('✅ Google button rendered.');
             }
-        }, 1500);
-    });
+            
+            // Show One Tap popup
+            google.accounts.id.prompt();
+            console.log('✅ Google One Tap prompt shown.');
+            
+        } catch (e) {
+            console.error('Google init error:', e);
+        }
+    }
+
+    function handleGoogleCredential(response) {
+        showLoader('Signing in with Google...');
+        fetch(API_BASE + '/api/v1/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: response.credential })
+        }).then(res => res.json()).then(data => {
+            hideLoader();
+            if (data.status === 200 || data.status === 201 || data.session_token) {
+                currentUser = data;
+                currentSession = data.session_token;
+                saveSession(data, data.session_token);
+                enterApp();
+                showResultModal(true, 'Welcome!', 'Signed in with Google.');
+            } else {
+                showResultModal(false, 'Google Sign-In Failed', data.message || 'Could not sign in.');
+            }
+        }).catch(err => {
+            hideLoader();
+            showResultModal(false, 'Network Error', err.message);
+        });
+    }
+
+    window.googleLoginNow = function() {
+        if (typeof google === 'undefined') {
+            showResultModal(false, 'Error', 'Google is still loading. Please wait 2 seconds and try again.');
+            return;
+        }
+        google.accounts.id.prompt();
+    };
+
+    // Start trying to initialize Google every 500ms until it loads
+    initGoogleSignIn();
 
 
     // SAFE LOGIN WRAPPER - prevents errors from breaking the page
