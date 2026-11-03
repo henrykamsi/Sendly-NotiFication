@@ -662,8 +662,14 @@
 
     
 
-    document.getElementById('loginPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('loginBtn').click(); } });
-    document.getElementById('regPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('registerBtn').click(); } });
+    // Safe: only attach keydown after elements exist
+    (function safeKeydown() {
+        var lp = document.getElementById('loginPassword');
+        var rp = document.getElementById('regPassword');
+        if (!lp || !rp) { setTimeout(safeKeydown, 100); return; }
+        lp.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('loginBtn').click(); } });
+        rp.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('registerBtn').click(); } });
+    })();
 
     function enterApp() {
         document.getElementById('authScreen').style.display = 'none'; document.getElementById('appContainer').classList.add('active'); document.getElementById('userBadge').textContent = '👤 ' + (currentUser.name || 'User');
