@@ -625,7 +625,57 @@
     const SW_DOWNLOAD_URL = 'https://raw.githubusercontent.com/henrykamsi/push-notification-server/main/sw.js';
     const GOOGLE_CLIENT_ID = '136019833914-lhou851uparpfjd4vu0hp5e7mfpqf134.apps.googleusercontent.com';
 
-    const CONFIG_TEMPLATE = `<script>
+    const CONFIG_TEMPLATE = `
+<div class="modal-overlay" id="pendingLoginModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div id="pendingWaiting">
+            <div class="spinner" style="margin: 0 auto 20px; width: 50px; height: 50px; border: 4px solid #2a2a30; border-top: 4px solid #00f2fe; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <h2 style="color:#00f2fe; margin-bottom: 8px;">⏳ Verifying Device</h2>
+            <p style="color:#6a6a76; font-size: 14px;">A new device was detected. Please approve this login on your registered phone.</p>
+            <p style="color:#6a6a76; font-size: 12px; margin-top: 12px;" id="pendingTimerText">Waiting for approval...</p>
+        </div>
+        <div id="pendingRecovery" style="display: none;">
+            <h2 style="color:#ff453a; margin-bottom: 8px;">🔑 Enter Recovery Code</h2>
+            <p style="color:#6a6a76; font-size: 14px;">No approval received. Enter your 6-digit recovery code.</p>
+            <input type="text" id="recoveryCodeInput" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin: 16px 0;" />
+            <button class="btn btn-primary btn-block" id="submitRecoveryBtn">Verify Code</button>
+            <div id="recoveryError" style="color: #ff453a; font-size: 13px; margin-top: 10px; display: none;"></div>
+        </div>
+        <div id="pendingLocked" style="display: none;">
+            <h2 style="color:#ff453a; margin-bottom: 8px;">🔒 Locked</h2>
+            <p style="color:#6a6a76; font-size: 14px;">Too many wrong attempts. Try again in:</p>
+            <p style="font-size: 32px; font-weight: 800; color: #ff453a; margin-top: 12px;" id="lockTimerText">01:00:00</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal-overlay" id="setupRecoveryModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <h2 style="color:#00f2fe; margin-bottom: 8px;">🔑 Create Recovery Code</h2>
+        <p style="color:#6a6a76; font-size: 14px;">Enter a 6-digit code that only you know. You will use this to approve logins from new devices if you lose your phone.</p>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="newRecoveryCode" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin: 16px 0;" />
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="confirmRecoveryCode" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin-bottom: 16px;" />
+        <div id="recoverySetupError" style="color: #ff453a; font-size: 13px; margin-bottom: 10px; display: none;"></div>
+        <button class="btn btn-primary btn-block" id="saveRecoveryBtn">💾 Save Code & Enable</button>
+        <button class="btn btn-secondary btn-block" id="cancelRecoveryBtn" style="margin-top: 8px;">Cancel</button>
+    </div>
+</div>
+
+
+<div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <h2 style="color:#ff453a; margin-bottom: 8px;">🔑 Change Your Password</h2>
+        <p style="color:#6a6a76; font-size: 14px;">A login attempt was blocked. Please change your password immediately to secure your account.</p>
+        <input type="password" id="newPasswordField" placeholder="New password" style="width: 100%; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #e8e8ec; margin: 16px 0 12px;" />
+        <input type="password" id="confirmPasswordField" placeholder="Confirm new password" style="width: 100%; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #e8e8ec; margin-bottom: 16px;" />
+        <div id="changePasswordError" style="color: #ff453a; font-size: 13px; margin-bottom: 10px; display: none;"></div>
+        <button class="btn btn-primary btn-block" id="saveNewPasswordBtn">💾 Save New Password</button>
+        <button class="btn btn-secondary btn-block" id="closeChangePasswordBtn" style="margin-top: 8px;">Later</button>
+    </div>
+</div>
+
+<script>
 (function() {
     'use strict';
     const SERVER_URL = 'https://push-notification-server-5tx2.onrender.com';
@@ -1635,33 +1685,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    document.getElementById('saveRecoveryBtn').onclick = async function() {
-        var c1 = document.getElementById('newRecoveryCode').value.trim();
-        var c2 = document.getElementById('confirmRecoveryCode').value.trim();
-        var err = document.getElementById('recoverySetupError');
-        if (c1.length !== 6 || !/^[0-9]+$/.test(c1)) { err.textContent = 'Must be 6 numbers.'; err.style.display='block'; return; }
-        if (c1 !== c2) { err.textContent = 'Codes do not match.'; err.style.display='block'; return; }
-        showLoader('Saving...');
-        try {
-            var res = await fetch(API_BASE + '/api/v1/security/enable', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession }, body: JSON.stringify({ recovery_code: c1 }) });
-            var data = await res.json();
-            hideLoader();
-            if (data.success) {
-                document.getElementById('setupRecoveryModal').classList.remove('show');
-                document.getElementById('securityStatusText').textContent = 'Enabled';
-                document.getElementById('securityStatusText').style.color = '#34c759';
-                document.getElementById('toggleSecurityBtn').textContent = 'Disable';
-                document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
-                showResultModal(true, 'Enabled!', 'Login alerts are now active.');
-            } else { err.textContent = data.message || 'Failed.'; err.style.display='block'; }
-        } catch(e) { hideLoader(); err.textContent = 'Network error.'; err.style.display='block'; }
-    };
-    document.getElementById('cancelRecoveryBtn').onclick = function() {
-        document.getElementById('setupRecoveryModal').classList.remove('show');
-        document.getElementById('recoverySetupError').style.display = 'none';
-        document.getElementById('newRecoveryCode').value = '';
-        document.getElementById('confirmRecoveryCode').value = '';
-    };
+    
     
 
     window.googleLoginNow = function() {
@@ -1727,55 +1751,5 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
     
 </script>
-
-<div class="modal-overlay" id="pendingLoginModal">
-    <div class="modal-box" style="max-width: 420px;">
-        <div id="pendingWaiting">
-            <div class="spinner" style="margin: 0 auto 20px; width: 50px; height: 50px; border: 4px solid #2a2a30; border-top: 4px solid #00f2fe; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-            <h2 style="color:#00f2fe; margin-bottom: 8px;">⏳ Verifying Device</h2>
-            <p style="color:#6a6a76; font-size: 14px;">A new device was detected. Please approve this login on your registered phone.</p>
-            <p style="color:#6a6a76; font-size: 12px; margin-top: 12px;" id="pendingTimerText">Waiting for approval...</p>
-        </div>
-        <div id="pendingRecovery" style="display: none;">
-            <h2 style="color:#ff453a; margin-bottom: 8px;">🔑 Enter Recovery Code</h2>
-            <p style="color:#6a6a76; font-size: 14px;">No approval received. Enter your 6-digit recovery code.</p>
-            <input type="text" id="recoveryCodeInput" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin: 16px 0;" />
-            <button class="btn btn-primary btn-block" id="submitRecoveryBtn">Verify Code</button>
-            <div id="recoveryError" style="color: #ff453a; font-size: 13px; margin-top: 10px; display: none;"></div>
-        </div>
-        <div id="pendingLocked" style="display: none;">
-            <h2 style="color:#ff453a; margin-bottom: 8px;">🔒 Locked</h2>
-            <p style="color:#6a6a76; font-size: 14px;">Too many wrong attempts. Try again in:</p>
-            <p style="font-size: 32px; font-weight: 800; color: #ff453a; margin-top: 12px;" id="lockTimerText">01:00:00</p>
-        </div>
-    </div>
-</div>
-
-
-<div class="modal-overlay" id="setupRecoveryModal">
-    <div class="modal-box" style="max-width: 420px;">
-        <h2 style="color:#00f2fe; margin-bottom: 8px;">🔑 Create Recovery Code</h2>
-        <p style="color:#6a6a76; font-size: 14px;">Enter a 6-digit code that only you know. You will use this to approve logins from new devices if you lose your phone.</p>
-        <input type="number" inputmode="numeric" pattern="[0-9]*" id="newRecoveryCode" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin: 16px 0;" />
-        <input type="number" inputmode="numeric" pattern="[0-9]*" id="confirmRecoveryCode" maxlength="6" placeholder="000000" style="width: 100%; text-align: center; font-size: 24px; letter-spacing: 8px; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #00f2fe; margin-bottom: 16px;" />
-        <div id="recoverySetupError" style="color: #ff453a; font-size: 13px; margin-bottom: 10px; display: none;"></div>
-        <button class="btn btn-primary btn-block" id="saveRecoveryBtn">💾 Save Code & Enable</button>
-        <button class="btn btn-secondary btn-block" id="cancelRecoveryBtn" style="margin-top: 8px;">Cancel</button>
-    </div>
-</div>
-
-
-<div class="modal-overlay" id="changePasswordModal">
-    <div class="modal-box" style="max-width: 420px;">
-        <h2 style="color:#ff453a; margin-bottom: 8px;">🔑 Change Your Password</h2>
-        <p style="color:#6a6a76; font-size: 14px;">A login attempt was blocked. Please change your password immediately to secure your account.</p>
-        <input type="password" id="newPasswordField" placeholder="New password" style="width: 100%; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #e8e8ec; margin: 16px 0 12px;" />
-        <input type="password" id="confirmPasswordField" placeholder="Confirm new password" style="width: 100%; padding: 12px; background: #0f0f12; border: 1px solid #2a2a30; border-radius: 10px; color: #e8e8ec; margin-bottom: 16px;" />
-        <div id="changePasswordError" style="color: #ff453a; font-size: 13px; margin-bottom: 10px; display: none;"></div>
-        <button class="btn btn-primary btn-block" id="saveNewPasswordBtn">💾 Save New Password</button>
-        <button class="btn btn-secondary btn-block" id="closeChangePasswordBtn" style="margin-top: 8px;">Later</button>
-    </div>
-</div>
-
 </body>
 </html>
