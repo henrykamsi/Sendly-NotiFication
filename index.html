@@ -2397,34 +2397,95 @@ function askLocation(){
     // SECURITY
     // ============================================================
     async function loadSecurityStatus() {
-        if (!currentSession) {
-            console.log('[Security] No session, skipping status load.');
+        if (!currentSession) return;
+        try {
+            const res = await fetch(API_BASE + '/api/v1/security/status', { headers: { 'x-session-token': currentSession } });
+            const data = await res.json();
+            const txt = $('securityStatusText');
+            const btn = $('toggleSecurityBtn');
+            if (!txt || !btn) return;
+            if (data.enabled) {
+                txt.textContent = 'Enabled';
+                txt.style.color = 'var(--success)';
+                btn.textContent = 'Disable';
+                btn.className = 'btn btn-danger btn-sm';
+            } else {
+                txt.textContent = 'Disabled';
+                txt.style.color = 'var(--text-dim)';
+                btn.textContent = 'Enable';
+                btn.className = 'btn btn-secondary btn-sm';
+            }
+        } catch (e) {}
+    }
+
+    function toggleSecurity() {
+        const status = $('securityStatusText').textContent;
+        if (status === 'Enabled') {
+            if (confirm('Are you sure you want to disable Login Alerts? This will make your account less secure.')) {
+                fetch(API_BASE + '/api/v1/security/disable', { method: 'POST', headers: { 'x-session-token': currentSession } })
+                    .then(function(r) { return r.json(); }).then(function(d) {
+                        if (d.success) {
+                            const txt = $('securityStatusText');
+                            const btn = $('toggleSecurityBtn');
+                            txt.textContent = 'Disabled';
+                            txt.style.color = 'var(--text-dim)';
+                            btn.textContent = 'Enable';
+                            btn.className = 'btn btn-secondary btn-sm';
+                            showResultModal(true, 'Disabled', 'Login alerts have been turned off.');
+                        }
+                    });
+            }
+        } else {
+            $('setupRecoveryModal').classList.add('show');
+            $('newRecoveryCode').value = '';
+            $('confirmRecoveryCode').value = '';
+            $('recoverySetupError').style.display = 'none';
+        }
+    }
+
+    async function saveRecoveryCode() {
+        const code1 = $('newRecoveryCode').value.trim();
+        const code2 = $('confirmRecoveryCode').value.trim();
+        const errEl = $('recoverySetupError');
+
+        if (code1.length !== 6 || !/^[0-9]+$/.test(code1)) {
+            errEl.textContent = 'Code must be exactly 6 numbers.';
+            errEl.style.display = 'block';
             return;
         }
-        fetch(API_BASE + '/api/v1/security/status', { headers: { 'x-session-token': currentSession } })
-            .then(function(res) { return res.json().catch(function() { return {}; }); })
-            .then(function(data) {
-                const txt = document.getElementById('securityStatusText');
-                const btn = document.getElementById('toggleSecurityBtn');
-                if (!txt || !btn) return;
-                const enabled = data && (data.enabled === true || data.enabled === 1 || data.enabled === '1');
-                console.log('[Security] Server says enabled =', enabled, 'raw =', JSON.stringify(data));
-                if (enabled) {
-                    txt.textContent = 'Enabled';
-                    txt.style.color = 'var(--success)';
-                    btn.textContent = 'Disable';
-                    btn.className = 'btn btn-danger btn-sm';
-                } else {
-                    txt.textContent = 'Disabled';
-                    txt.style.color = 'var(--text-dim)';
-                    btn.textContent = 'Enable';
-                    btn.className = 'btn btn-secondary btn-sm';
-                }
-            })
-            .catch(function(e) {
-                console.warn('[Security] Status fetch failed:', e);
+        if (code1 !== code2) {
+            errEl.textContent = 'Codes do not match.';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        showLoader('save');
+        try {
+            const res = await fetch(API_BASE + '/api/v1/security/enable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-session-token': currentSession },
+                body: JSON.stringify({ recovery_code: code1 })
             });
-    } catch(e) {}
+            const data = await res.json();
+            hideLoader();
+            if (data.success) {
+                $('setupRecoveryModal').classList.remove('show');
+                const txt = $('securityStatusText');
+                const btn = $('toggleSecurityBtn');
+                txt.textContent = 'Enabled';
+                txt.style.color = 'var(--success)';
+                btn.textContent = 'Disable';
+                btn.className = 'btn btn-danger btn-sm';
+                showResultModal(true, 'Enabled!', 'Login alerts are now active.');
+            } else {
+                errEl.textContent = data.message || 'Failed to enable.';
+                errEl.style.display = 'block';
+            }
+        } catch (e) {
+            hideLoader();
+            errEl.textContent = 'Network error.';
+            errEl.style.display = 'block';
+        }
     }
 
     async function loadSecurityLogs() {
