@@ -1213,22 +1213,34 @@
 
     // Load security status when entering app
     async function loadSecurityStatus() {
-        if (!currentSession) return;
-        try {
-            var res = await fetch(API_BASE + '/api/v1/security/status', { headers: { 'x-session-token': currentSession } });
-            var data = await res.json();
-            if (data.enabled) {
-                document.getElementById('securityStatusText').textContent = 'Enabled';
-                document.getElementById('securityStatusText').style.color = '#34c759';
-                document.getElementById('toggleSecurityBtn').textContent = 'Disable';
-                document.getElementById('toggleSecurityBtn').className = 'btn btn-danger btn-sm';
-            } else {
-                document.getElementById('securityStatusText').textContent = 'Disabled';
-                document.getElementById('securityStatusText').style.color = '#6a6a76';
-                document.getElementById('toggleSecurityBtn').textContent = 'Enable';
-                document.getElementById('toggleSecurityBtn').className = 'btn btn-secondary btn-sm';
-            }
-        } catch(e) {}
+        if (!currentSession) {
+            console.log('[Security] No session, skipping status load.');
+            return;
+        }
+        fetch(API_BASE + '/api/v1/security/status', { headers: { 'x-session-token': currentSession } })
+            .then(function(res) { return res.json().catch(function() { return {}; }); })
+            .then(function(data) {
+                const txt = document.getElementById('securityStatusText');
+                const btn = document.getElementById('toggleSecurityBtn');
+                if (!txt || !btn) return;
+                const enabled = data && (data.enabled === true || data.enabled === 1 || data.enabled === '1');
+                console.log('[Security] Server says enabled =', enabled, 'raw =', JSON.stringify(data));
+                if (enabled) {
+                    txt.textContent = 'Enabled';
+                    txt.style.color = 'var(--success)';
+                    btn.textContent = 'Disable';
+                    btn.className = 'btn btn-danger btn-sm';
+                } else {
+                    txt.textContent = 'Disabled';
+                    txt.style.color = 'var(--text-dim)';
+                    btn.textContent = 'Enable';
+                    btn.className = 'btn btn-secondary btn-sm';
+                }
+            })
+            .catch(function(e) {
+                console.warn('[Security] Status fetch failed:', e);
+            });
+    } catch(e) {}
     }
 
     
